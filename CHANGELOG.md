@@ -5,6 +5,16 @@ than restating it.
 
 ## Unreleased
 
+### Dependency scanning — 2026-10-22
+
+- `dependencies.yml`: OSV-Scanner over the two release runtime classpaths, failing on any advisory,
+  and over every artifact the build pins, reported to the Security tab (L10).
+- The release runtime classpaths are locked in each module's `gradle.lockfile`, in strict mode (L10).
+- `gradle/osv-scanner.toml` accepts the 12 build-tooling advisories, each with why it cannot be reached
+  from a library build, and each expiring on 2027-01-22 (L10).
+- Both scans checked both ways locally: a planted vulnerable runtime dependency fails the first, and an
+  advisory taken out of the triage file comes back in the second (L10).
+
 ### Kotlin 2.4.21 — 2026-10-22
 
 - The build compiles with Kotlin 2.4.21 rather than the 2.2.10 AGP depends on, for GHSA-r937-wjx7-w2jp,

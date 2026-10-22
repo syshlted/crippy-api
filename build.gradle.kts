@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.api.artifacts.dsl.LockMode
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
@@ -82,5 +83,16 @@ subprojects {
     }
     plugins.withId("com.android.library") {
         allUnitTests.configure { dependsOn("${this@subprojects.path}:testDebugUnitTest") }
+    }
+
+    // What an app receives from this module, locked in gradle.lockfile beside it (L10). It changes
+    // only by `--write-locks`, so a new runtime dependency is a diff someone reads, and the lockfile is
+    // the list `dependencies.yml` scans. STRICT, so a module whose lockfile is missing fails rather
+    // than resolving unlocked.
+    dependencyLocking {
+        lockMode.set(LockMode.STRICT)
+    }
+    configurations.matching { it.name == "releaseRuntimeClasspath" }.configureEach {
+        resolutionStrategy.activateDependencyLocking()
     }
 }

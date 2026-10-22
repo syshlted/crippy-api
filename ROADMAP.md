@@ -34,13 +34,11 @@ item 3.
    snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.
 6. **Device tests** for the client against a real crippy, which needs crippy's APK on the device or
    emulator; then `instrumented.yml`.
-7. **Dependency scanning of what ships** (L7): Gradle dependency locking on the two release runtime
-   classpaths, and OSV-Scanner over those lockfiles with its SARIF in the Security tab. Today that is
-   `kotlin-stdlib` and `annotations`, with no advisories, so it starts green and fails the day a
-   vulnerable runtime dependency arrives. The scanner as a release binary checked against its
-   published SHA-256: `osv-scanner-action` runs a Docker image by tag, which pinning the action's SHA
-   does not pin (crippy D7). The 13 build-tooling advisories go with the next toolchain bump, made in
-   step with crippy (L3).
+7. ~~**Dependency scanning of what ships** (L7)~~ **Done 2026-10-22 (L10)**, with the build's tooling
+   reported as well, against a triage file. The one advisory with a way in was fixed by Kotlin 2.4.21
+   (L9).
+8. **Re-read `gradle/osv-scanner.toml` by 2027-01-22**, when every entry in it expires and its
+   advisory comes back as an alert. Renew an entry only if its reason still holds.
 
 ## Before the first release
 
@@ -62,9 +60,10 @@ item 3.
   keeps a commit signed by GitHub rather than the author, which `commit-policy` never checks because it
   is already on the remote. **Recommended: replace it**, before anything else lands on GitHub. The
   user decides.
-- **Branch protection on `master`**: signed commits, a review, `ci`, `commit-policy` and both `codeql`
-  jobs required, and code scanning merge protection, so a pull request that adds a high or critical
-  alert cannot merge (L7).
+- **Branch protection on `master`**: signed commits, a review, `ci`, `commit-policy`, both `codeql`
+  jobs and the `dependencies` job for what ships required, and code scanning merge protection, so a
+  pull request that adds a high or critical alert — from CodeQL or from the build-tooling scan — cannot
+  merge (L7, L10).
 - **Merge commits or rebases only**, never a squash (`AGENTS.md`, *Repo conventions*).
 - **Actions must be pinned to a full commit SHA**, a repository setting that is off: every workflow
   already pins (crippy D7), and the setting makes an unpinned one fail rather than run.

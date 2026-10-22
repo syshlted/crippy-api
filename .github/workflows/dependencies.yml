@@ -1,0 +1,91 @@
+# Dependency scanning (L10). Two questions, two jobs: does anything an app receives have a known
+# advisory, and has an advisory appeared in the build's own tooling that nobody has read yet.
+name: dependencies
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  # Weekly as well, because an advisory published today is about a dependency that has not changed.
+  schedule:
+    - cron: '41 6 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependencies-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# The scanner is a release binary checked against the SHA-256 Google publishes beside it, not
+# osv-scanner-action: that runs a Docker image by tag, which pinning the action's SHA does not pin
+# (crippy D7). Bump deliberately: new version, new hash from its osv-scanner_SHA256SUMS.
+env:
+  OSV_SCANNER_VERSION: v2.7.0
+  OSV_SCANNER_SHA256: 160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b
+
+jobs:
+  # What ships fails the build on any advisory at all: nothing in an AAR is accepted, so there is no
+  # triage file here, and the lockfiles are the whole of what an app receives (L10).
+  shipped:
+    name: what an app receives
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install OSV-Scanner
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/osv-scanner" \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SCANNER_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/osv-scanner"
+
+      - name: No known advisory in either release runtime classpath
+        run: |
+          "$RUNNER_TEMP/osv-scanner" scan source \
+            -L crippy-client/gradle.lockfile \
+            -L crippy-contract/gradle.lockfile
+
+  # The build's tooling — every artifact gradle/verification-metadata.xml pins — reported to the
+  # Security tab rather than failing the job. An advisory published this week is not something a pull
+  # request did, so it should not block one; a pull request that brings a vulnerable tool in shows as
+  # a new alert, which code scanning merge protection can refuse. Advisories already read and accepted
+  # are in gradle/osv-scanner.toml, each with its reason and an expiry.
+  build:
+    name: what builds it
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install OSV-Scanner
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/osv-scanner" \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SCANNER_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/osv-scanner"
+
+      # Exit 1 means advisories were found, which is what the SARIF is for. Anything else is the
+      # scanner failing, and a scan that did not happen must not read as a clean one.
+      - name: Scan the build's tooling
+        run: |
+          status=0
+          "$RUNNER_TEMP/osv-scanner" scan source \
+            --config=gradle/osv-scanner.toml \
+            -L gradle/verification-metadata.xml \
+            --format=sarif --output-file=osv-build.sarif || status=$?
+          if [ "$status" -ne 0 ] && [ "$status" -ne 1 ]; then
+            echo "::error::osv-scanner failed with exit $status"
+            exit "$status"
+          fi
+
+      - uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: osv-build.sarif
+          category: osv-build

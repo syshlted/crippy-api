@@ -22,3 +22,7 @@ bin/
 # IDE
 .idea/
 *.iml
+
+# Written by `--write-locks` for the version catalog's own configuration, and empty: nothing in settings
+# is locked. The lockfiles that matter are the modules' gradle.lockfile (AGENTS.md L10).
+settings-gradle.lockfile
