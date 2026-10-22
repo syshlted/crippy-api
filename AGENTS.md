@@ -116,7 +116,8 @@ Waydroid are recorded there under *Local development environment*. Three facts m
 
 ### L1 — A client-only library: `com.systemhalted.crippy:crippy-client`, with the contract beside it
 *2026-10-22 · accepted; **minSdk 27 confirmed by the user the same day as a hard limit**; coordinates
-revised the same day for a client-only library, and **flagged for veto on them***
+revised the same day for a client-only library, and **the group settled the same day: the user owns
+`systemhalted.com`***
 
 **libcrippy is client-only** — the user's direction, 2026-10-22. It is the library an app uses to
 connect to crippy's AIDL interface, and none of crippy's service is in it; the service is crippy's.
@@ -144,11 +145,12 @@ this build instead of resolving it (crippy D115). The packages do not change wit
 Version `0.1.0-SNAPSHOT`. *First set as `com.systemhalted.libcrippy:contract` and `:client`, and
 renamed the same day before anything depended on them.*
 
-**Where they are published is not decided, and the group depends on it.** Maven Central verifies a
-namespace before it publishes under it, so `com.systemhalted` needs a DNS record on `systemhalted.com`;
-if that domain is not ours, the group becomes `io.github.<org>`. GitHub Packages needs a token even to
-read, which is a poor fit for a library meant to be easy to integrate. Nothing is published yet.
-**Flagged** on the names and on that dependency.
+**They will be published to Maven Central, under a namespace the user owns.** Central verifies a
+namespace before it publishes under it, by a DNS record on the matching domain, and the user owns
+`systemhalted.com`, so `com.systemhalted` can be verified and the group stands. *Rejected:* GitHub
+Packages, which needs a token even to read — a poor fit for a library meant to be easy to integrate —
+and JitPack, which builds from source on its own machines, so the AAR an app receives is not one this
+repository built and checked. Nothing is published yet, and how the artifacts are signed is open.
 
 **Both are Android libraries.** A Binder interface is `android.*` by definition, so the purity crippy
 D5 keeps for `:core-*` has nothing to buy here. If something pure-JVM arrives — the registry's
@@ -247,12 +249,47 @@ passes. So the gates are wired now rather than in the commit that adds the code 
 bite the moment that code arrives — the opposite order to crippy's `:provider`, whose gate landed with
 the provider.
 
+### L5 — The client hides the contract
+*2026-10-22 · accepted, at the user's direction: "hide them if it makes it easier to create clients"*
+
+**`crippy-client` depends on `crippy-contract` with `implementation`**, so no AIDL type is on an app's
+compile classpath — not `ICrippyService`, not a `Parcelable` the contract will define, not `IBinder`.
+An app codes against the client's own types and nothing else. Checked with a throwaway consumer
+module: depending on the client alone, a reference to `ICrippyService.VERSION` fails with
+*"Unresolved reference 'api'"*; declaring `crippy-contract` as well, it compiles; and either way the
+contract is on the consumer's runtime classpath through the client.
+
+It does make a client easier to write, for three reasons:
+
+1. **L2's hazard is closed for every app at once.** A method an older crippy does not have answers zero
+   rather than an error, and an app that cannot reach the AIDL cannot make that call. The client
+   checks the service's version once, for everybody.
+2. **Binder's failures become answers.** `RemoteException`, `DeadObjectException`, a service that goes
+   away mid-call, a binder that is not crippy's: the client turns each into a result of its own, where
+   an app holding the raw interface would have to catch them all itself.
+3. **The wire is permanent and the client's API is not.** A method stays in the contract for ever once
+   it has shipped (L2); a client type can be deprecated and replaced. With the wire hidden, what an
+   app codes against can change without a contract version.
+
+**What it costs**: a client type beside each contract type an app needs — a `Parcelable` on the wire,
+a Kotlin class in the client — and a conversion between the two. Accepted.
+
+**The contract is still published**, because the client needs it at runtime and crippy's service
+compiles against it (L1). An author who wants the raw interface, to write a client of their own,
+declares `crippy-contract` directly, and `PROTOCOL.md` is written for them.
+
+**The rule needs a guard before the client has public types.** Kotlin does not stop a public signature
+in the client naming a type from an `implementation` dependency; an app would then fail to compile
+against that member with *"cannot access class"*. So no public or protected signature in
+`crippy-client` may name `com.systemhalted.crippy.api`, checked by a test or by the API dump owed
+before the first release (`ROADMAP.md`). Nothing checks it yet, because the client has no code.
+
 ---
 
 ## Open questions
 
-- **Where the artifacts are published** (L1), and how they are signed — and with it, whether the group
-  stays `com.systemhalted.crippy`.
+- **How the artifacts are signed for Maven Central** (L1): the repository's signing key, or one of
+  their own.
 - **The Kotlin floor for consumers** (L3).
 - **Where crippy D113's spike lives** — a read-only `SharedMemory` handoff and a Binder round trip on
   the four phones. It needs a service and a client in two processes, and either repository could hold
@@ -261,5 +298,5 @@ the provider.
 ## Build order
 
 1. ~~Scaffold: the Gradle project, both modules, the gates and the hooks.~~ **Done 2026-10-22** — L1
-   to L4.
+   to L5.
 2. Everything after is in `ROADMAP.md`.

@@ -31,8 +31,9 @@ kotlin {
 }
 
 dependencies {
-    // `api`: a client's own types will name the contract's, so an app that sees the client sees them.
-    api(project(":crippy-contract"))
+    // `implementation`, so no AIDL type reaches an app's compile classpath (L5): an app codes against
+    // the client's own types, and only the client can call the contract. It still arrives at runtime.
+    implementation(project(":crippy-contract"))
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

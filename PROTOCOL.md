@@ -6,7 +6,8 @@ methods are only ever added.
 crippy is an encrypted file vault for Android. Besides the system file picker, it offers a Binder
 service that an app can bind to and read the vault through, without the picker and without Android
 keeping a record of which document went to which app. The client library in this repository does all
-of the below for you; this file is for anyone who wants to know what it does, or to write their own.
+of the below for you, and keeps the AIDL types out of an app's sight. This file is for anyone who
+wants to know what it does, or to write a client of their own against `crippy-contract`.
 
 ## The service
 

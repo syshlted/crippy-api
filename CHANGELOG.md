@@ -5,6 +5,14 @@ than restating it.
 
 ## Unreleased
 
+### The client hides the contract — 2026-10-22
+
+- `crippy-client` depends on `crippy-contract` with `implementation`, so an app sees only the client's
+  own types (L5). A guard that the client's public signatures name no contract type is owed before
+  its first public type.
+- The group stands, because the user owns `systemhalted.com`; the artifacts will go to Maven Central
+  (L1).
+
 ### A client-only library, and its coordinates — 2026-10-22
 
 - The artifacts are `com.systemhalted.crippy:crippy-client`, which is all an app declares, and

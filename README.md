@@ -7,7 +7,8 @@ crippy's companion service over AIDL; the service itself is part of crippy, not 
 [`PROTOCOL.md`](PROTOCOL.md) for what the protocol says so far and [`ROADMAP.md`](ROADMAP.md) for
 what comes next.
 
-An app declares one dependency, the client. The contract comes with it.
+An app declares one dependency, the client, and codes against its types alone. The contract comes
+with it at runtime and is never on the app's compile classpath.
 
 | Module | Artifact | What it is |
 |---|---|---|
