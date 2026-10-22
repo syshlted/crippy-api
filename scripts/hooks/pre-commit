@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# libcrippy — signing preflight.
+#
+# Catches a misconfigured repo BEFORE a commit object is written, so you get an
+# actionable message instead of git failing mid-commit.
+#
+# LIMITATION: git does not pass commit flags to hooks, so this cannot detect
+# `git commit --no-gpg-sign`. Actual enforcement lives in scripts/hooks/pre-push,
+# which inspects real signatures.
+set -euo pipefail
+
+die() { printf 'pre-commit: %s\n' "$1" >&2; [ $# -gt 1 ] && printf '  fix: %s\n' "$2" >&2; exit 1; }
+
+[ "$(git config --get commit.gpgsign || echo false)" = "true" ] \
+  || die "commit.gpgsign is not true — this repo requires signed commits." \
+         "git config --local commit.gpgsign true"
+
+key="$(git config --get user.signingkey || true)"
+[ -n "$key" ] \
+  || die "user.signingkey is unset." \
+         "git config --local user.signingkey <fingerprint>"
+
+# Probe that the key can actually sign. Interactively git will prompt to unlock,
+# so only a non-interactive run (no TTY, nothing to prompt with) is fatal.
+fmt="$(git config --get gpg.format || echo openpgp)"
+if [ "$fmt" = "openpgp" ] \
+   && ! gpg --batch --no-tty --local-user "$key" --sign -o /dev/null </dev/null 2>/dev/null; then
+  if [ -t 1 ]; then
+    printf 'pre-commit: signing key %s is locked; git will prompt to unlock it.\n' "$key" >&2
+  else
+    die "signing key $key is unusable (locked agent, expired, or missing) and there is no TTY to unlock it." \
+        "gpg --local-user $key --sign -o /dev/null </dev/null"
+  fi
+fi
+
+exit 0

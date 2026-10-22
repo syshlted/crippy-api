@@ -1,0 +1,45 @@
+# Lefthook — local git hook runner. The same hooks crippy runs (crippy D7, D11).
+#
+#   bootstrap a clone:  lefthook install
+#   bypass everything:  LEFTHOOK=0 git commit ...
+#   bypass one hook:    git commit --no-verify
+#
+# POLICY: hooks are a fast local mirror of CI, never the only place a check
+# exists. Anything enforced here is re-checked authoritatively in
+# .github/workflows/ — a bypassed hook must never mean an unchecked merge.
+
+min_version: 1.10.0
+assert_lefthook_installed: true
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: signing-preflight
+      run: scripts/hooks/pre-commit
+
+    - name: ktlint
+      glob: "*.{kt,kts}"
+      run: scripts/hooks/gradle-task ktlintCheck
+
+    - name: detekt
+      glob: "*.kt"
+      run: scripts/hooks/gradle-task detekt
+
+commit-msg:
+  jobs:
+    - name: conventional-commit
+      run: scripts/hooks/commit-msg {1}
+
+pre-push:
+  jobs:
+    # use_stdin is REQUIRED: lefthook runs jobs under a pseudo-TTY and does not
+    # close stdin, so a `while read` loop hangs forever without it. The pre-push
+    # signature check reads git's ref lines from stdin.
+    - name: verify-signatures
+      use_stdin: true
+      run: scripts/hooks/pre-push {1}
+
+    # allUnitTests rather than testDebugUnitTest, for crippy D11's reason: a name-matched
+    # task silently skips every module that lacks it. Mirrors ci.yml.
+    - name: unit-tests
+      run: scripts/hooks/gradle-task allUnitTests

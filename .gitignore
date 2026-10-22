@@ -1,0 +1,24 @@
+# Claude Code local config
+.claude/
+
+# Gradle
+.gradle/
+build/
+captures/
+
+# Android SDK location — machine-specific, never committed
+local.properties
+
+# Kotlin
+.kotlin/
+
+# Python's bytecode cache, written beside a script that is imported
+__pycache__/
+
+# Eclipse/Kotlin-LSP output. Not Gradle's — Gradle writes to build/ — so the build/ rule above
+# does not cover it, and these directories hold stale copies of sources that grep will return.
+bin/
+
+# IDE
+.idea/
+*.iml

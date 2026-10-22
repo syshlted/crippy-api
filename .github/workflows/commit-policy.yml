@@ -1,0 +1,83 @@
+# Authoritative mirror of the local pre-push and commit-msg hooks.
+# Local hooks can be bypassed with --no-verify; this cannot.
+name: commit-policy
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commit-policy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      # Every third-party action in this repo is pinned to a full commit SHA with the
+      # release it was on in a trailing comment. A tag is a mutable pointer: whoever can
+      # move `v4` can run code in a job holding this repo's token, which is not a risk a
+      # project about confidentiality should carry for the convenience of not reading a
+      # SHA. Bump deliberately — re-resolve the tag, read what changed, update the comment.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Determine commit range
+        id: range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Uses GitHub's own verification (the org's registered public keys) rather
+      # than shipping a keyring into CI.
+      #
+      # CAVEAT: squash-merge re-signs with GitHub's web-flow key, so squashed
+      # commits report verified-by-GitHub, not verified-by-author. See AGENTS.md,
+      # *Repo conventions* — this is why the repo does not squash.
+      - name: Every commit must carry a good signature
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ steps.range.outputs.base }}
+          HEAD: ${{ steps.range.outputs.head }}
+        run: |
+          set -euo pipefail
+          case "$BASE" in *[!0]*) ;; *) BASE="" ;; esac   # all-zero sha => new branch
+          range="${BASE:+$BASE..}$HEAD"
+          fail=0
+          for sha in $(git rev-list "$range"); do
+            read -r verified reason < <(
+              gh api "repos/${{ github.repository }}/commits/$sha" \
+                --jq '"\(.commit.verification.verified) \(.commit.verification.reason)"'
+            )
+            if [ "$verified" != "true" ]; then
+              printf '::error::unsigned commit %s (%s) — %s\n' \
+                "$(git rev-parse --short "$sha")" "$reason" "$(git log -1 --format=%s "$sha")"
+              fail=1
+            fi
+          done
+          [ "$fail" -eq 0 ] || { echo "::error::push rejected — all commits must be signed"; exit 1; }
+
+      - name: Every commit must be a Conventional Commit
+        env:
+          BASE: ${{ steps.range.outputs.base }}
+          HEAD: ${{ steps.range.outputs.head }}
+        run: |
+          set -euo pipefail
+          case "$BASE" in *[!0]*) ;; *) BASE="" ;; esac
+          fail=0
+          tmp="$(mktemp)"
+          for sha in $(git rev-list "${BASE:+$BASE..}$HEAD"); do
+            git log -1 --format=%B "$sha" > "$tmp"
+            scripts/hooks/commit-msg "$tmp" || { echo "::error::  ^ in commit $sha"; fail=1; }
+          done
+          exit "$fail"

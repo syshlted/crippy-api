@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# libcrippy — refuse to push commits lacking a good signature.
+#
+# This is the real enforcement point: unlike pre-commit, it can inspect the
+# actual signature on every commit in the push range, so it catches commits
+# made with --no-gpg-sign or by a clone with signing switched off.
+#
+# Bypass (deliberately noisy): git push --no-verify
+set -euo pipefail
+
+remote="${1:-origin}"
+# Works for both sha1 (40) and sha256 (64) repos.
+zero="$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')"
+
+explain() {
+  case "$1" in
+    N) echo "no signature" ;;
+    B) echo "BAD signature" ;;
+    E) echo "signature cannot be checked (missing public key)" ;;
+    X) echo "good signature, but it has expired" ;;
+    Y) echo "good signature, but made by an expired key" ;;
+    R) echo "good signature, but made by a REVOKED key" ;;
+    *) echo "unverified ($1)" ;;
+  esac
+}
+
+fail=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue          # branch deletion
+
+  if [ "$remote_sha" = "$zero" ]; then            # new branch: exclude what the remote already has
+    range="$(git rev-list "$local_sha" --not --remotes="$remote")"
+  else
+    range="$(git rev-list "${remote_sha}..${local_sha}")"
+  fi
+  [ -z "$range" ] && continue
+
+  while read -r sha; do
+    [ -z "$sha" ] && continue
+    status="$(git log -1 --format='%G?' "$sha")"
+    case "$status" in
+      G|U) ;;                                     # good; U = good but trust level unknown
+      *)
+        printf 'pre-push: %s  %s\n            %s\n' \
+          "$(git rev-parse --short "$sha")" \
+          "$(git log -1 --format='%s' "$sha")" \
+          "$(explain "$status")" >&2
+        fail=1
+        ;;
+    esac
+  done <<< "$range"
+done
+
+if [ "$fail" -ne 0 ]; then
+  printf '\npre-push: push rejected — every commit must carry a good signature.\n' >&2
+  printf '  re-sign history: git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
+  printf '  override:        git push --no-verify\n' >&2
+  exit 1
+fi
+
+exit 0

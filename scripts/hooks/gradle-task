@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Run a Gradle task, or no-op cleanly if the project has not been scaffolded yet.
+# Lets hooks and CI be written now and go live the moment ./gradlew exists.
+set -euo pipefail
+if [ ! -x ./gradlew ]; then
+  printf 'gradle-task: no ./gradlew yet — skipping: %s\n' "$*" >&2
+  exit 0
+fi
+exec ./gradlew --quiet --console=plain "$@"

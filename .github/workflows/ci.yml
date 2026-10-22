@@ -1,0 +1,75 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 because the diff-coverage step below needs the PR's base commit
+      # to diff against, and a shallow clone does not have it.
+      #
+      # Every action is pinned to a full commit SHA with its release in a trailing comment, and
+      # to the same SHAs crippy pins (crippy D7). A tag is a mutable pointer, and whoever can move
+      # one can run code in a job holding this repository's token.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+
+      # The gradle-task shim no-ops if ./gradlew is ever absent, which keeps these steps honest on
+      # a partial checkout rather than failing with a confusing stack trace.
+      - name: Lint (ktlint)
+        run: scripts/hooks/gradle-task ktlintCheck
+
+      - name: Static analysis (detekt)
+        run: scripts/hooks/gradle-task detekt
+
+      # NOT testDebugUnitTest: Gradle runs a name-matched task in whichever projects have it
+      # without complaining that the others lack it (crippy D11).
+      - name: JVM unit tests (all modules)
+        run: scripts/hooks/gradle-task allUnitTests
+
+      # Both AARs, release included. The unit tests compile the debug variant only, and the release
+      # AAR is the artifact a client links.
+      - name: Build the AARs
+        run: scripts/hooks/gradle-task assemble
+
+      - name: Coverage (Kover, per-module thresholds)
+        run: scripts/hooks/gradle-task koverVerify
+
+      # L4, after crippy D5: the per-module gates stop the average sliding, and this stops a change
+      # arriving uncovered while a 90%-covered module absorbs it. Pull requests only — a push has
+      # no base to diff against that means anything.
+      - name: Diff coverage (L4, >= 85% on changed lines)
+        if: github.event_name == 'pull_request'
+        run: |
+          scripts/hooks/gradle-task koverXmlReport
+          python3 scripts/ci/diff-coverage.py \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}"
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-reports
+          path: '**/build/reports/**'
+          if-no-files-found: ignore
+          retention-days: 14
