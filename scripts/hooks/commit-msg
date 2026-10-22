@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# libcrippy — enforce Conventional Commits.
+# crippy-api — enforce Conventional Commits.
 #
 # CI re-checks this authoritatively; this hook just fails fast locally.
 # Bypass: git commit --no-verify   (or LEFTHOOK=0)

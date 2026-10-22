@@ -1,4 +1,4 @@
-// libcrippy — module layout per AGENTS.md L1.
+// crippy-api — module layout per AGENTS.md L1.
 //
 // Two artifacts, because crippy D115 publishes two: the contract, which crippy's service and every
 // client compile against, and the client library an app integrates. Both are Android libraries,
@@ -38,7 +38,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "libcrippy"
+rootProject.name = "crippy-api"
 
 include(":crippy-contract")
 include(":crippy-client")

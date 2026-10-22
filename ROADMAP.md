@@ -1,4 +1,4 @@
-# libcrippy — Roadmap
+# crippy-api — Roadmap
 
 What is next, and in what order. `AGENTS.md` is why; `CHANGELOG.md` is what happened. When this file
 and `AGENTS.md` disagree, `AGENTS.md` wins.
@@ -49,6 +49,11 @@ item 3.
 
 ## When the repository is pushed
 
+- **GitHub's initial commit**, `c3b4c92`, shares no history with `master` (L6). Replacing it with a
+  force push loses only a `LICENSE` identical to ours; merging it with `--allow-unrelated-histories`
+  keeps a commit signed by GitHub rather than the author, which `commit-policy` never checks because it
+  is already on the remote. **Recommended: replace it**, before anything else lands on GitHub. The
+  user decides.
 - **Branch protection on `master`**: signed commits, a review, `ci` and `commit-policy` required.
 - **Merge commits or rebases only**, never a squash (`AGENTS.md`, *Repo conventions*).
 
@@ -56,7 +61,7 @@ item 3.
 
 Empty.
 
-## After libcrippy
+## After crippy-api
 
 **The file manager**, in `../crippy-file-manager`, built against this library as any other app is
 (crippy D112, D115).

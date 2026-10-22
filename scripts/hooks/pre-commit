@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# libcrippy — signing preflight.
+# crippy-api — signing preflight.
 #
 # Catches a misconfigured repo BEFORE a commit object is written, so you get an
 # actionable message instead of git failing mid-commit.

@@ -1,4 +1,4 @@
-# libcrippy — Project Facts & Decision Log
+# crippy-api — Project Facts & Decision Log
 
 > Living document. Append decisions as they're made; mark superseded ones rather than deleting them.
 > Date format: YYYY-MM-DD.
@@ -28,8 +28,9 @@ the client's side of it.
 
 **Scaffolded 2026-10-22.** Two modules build, the gates run, and the hooks are installed. What landed
 is structure, not implementation: the contract has one method, the version query, and the client
-has no code. **There is no remote**, so GitHub Actions has never run; until the repository is pushed,
-the hooks and a local `./gradlew` are the only checks.
+has no code. **The remote is `git@syshlt-github:syshlted/crippy-api.git` and nothing has been pushed
+to it**, so GitHub Actions has never run; until the first push, the hooks and a local `./gradlew` are
+the only checks.
 
 ## Relationship to crippy
 
@@ -119,7 +120,7 @@ Waydroid are recorded there under *Local development environment*. Three facts m
 revised the same day for a client-only library, and **the group settled the same day: the user owns
 `systemhalted.com`***
 
-**libcrippy is client-only** — the user's direction, 2026-10-22. It is the library an app uses to
+**crippy-api is client-only** — the user's direction, 2026-10-22. It is the library an app uses to
 connect to crippy's AIDL interface, and none of crippy's service is in it; the service is crippy's.
 
 **Two modules all the same, and an app names one.** `crippy-client` is what an app declares.
@@ -283,6 +284,25 @@ in the client naming a type from an `implementation` dependency; an app would th
 against that member with *"cannot access class"*. So no public or protected signature in
 `crippy-client` may name `com.systemhalted.crippy.api`, checked by a test or by the API dump owed
 before the first release (`ROADMAP.md`). Nothing checks it yet, because the client has no code.
+
+### L6 — The repository is `crippy-api`
+*2026-10-22 · accepted, at the user's direction*
+
+**Renamed from `libcrippy` before anything outside it named it.** The `lib` prefix is a C and Unix
+convention, which exists because the linker's `-l` adds it back, and here it pointed the wrong way:
+crippy ships native libraries and crippy D113 rejected a native transport, so a reader auditing the
+path who meets `libcrippy` could reasonably look for a `libcrippy.so`. `crippy-api` matches
+`com.systemhalted.crippy.api`, the one name here that can never change (L2), and names what the
+repository is rather than its form. *Rejected:* `crippy-sdk`, which also says *what you integrate* and
+fits a repository whose most important file is a specification less well.
+
+**The repository, its directory and the root project's name changed, and nothing else.** The
+artifacts, their group and both packages are L1's: a composite build substitutes on the subprojects'
+names and never the root's, so nothing that will depend on this library sees the rename.
+
+**GitHub made a commit of its own when the repository was created**: `c3b4c92`, holding an Apache-2.0
+`LICENSE` that differs from ours by one leading blank line. It shares no history with `master`, so the
+first push either replaces it or merges it (`ROADMAP.md`).
 
 ---
 

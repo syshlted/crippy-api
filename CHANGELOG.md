@@ -1,9 +1,15 @@
-# libcrippy — Changelog
+# crippy-api — Changelog
 
 What happened, one entry per roadmap item. `AGENTS.md` is why, and an entry links to a decision rather
 than restating it.
 
 ## Unreleased
+
+### The repository is crippy-api — 2026-10-22
+
+- Renamed from `libcrippy`: the repository, its directory and the root project's name. The artifacts,
+  their group and both packages are unchanged (L6).
+- The remote is `git@syshlt-github:syshlted/crippy-api.git`. Nothing has been pushed.
 
 ### The client hides the contract — 2026-10-22
 

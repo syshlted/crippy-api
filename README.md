@@ -1,4 +1,4 @@
-# libcrippy
+# crippy-api
 
 A client-only Android library for reaching a crippy vault without the system file picker. It binds to
 crippy's companion service over AIDL; the service itself is part of crippy, not of this library.
