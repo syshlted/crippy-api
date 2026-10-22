@@ -18,9 +18,11 @@ item 3.
    read-only and confirm the client cannot make its mapping writable, read what `/proc/self/fd` calls
    it, and measure a Binder round trip. It decides whether the client gets a read path that skips
    AppFuse. Where it lives is an open question (`AGENTS.md`).
-2. **The contract's first real surface**: opening a session, the authorization request crippy's own
+2. ~~**The contract's first real surface**: opening a session, the authorization request crippy's own
    Activity answers, listing in pages, and opening a document as a proxy descriptor (crippy D113,
-   D114). Each method appended after `contractVersion()`, and each recorded here as it lands.
+   D114). Each method appended after `contractVersion()`, and each recorded here as it lands.~~ **Done
+   2026-10-22 (L11)**, with writes, move, previews, handoffs, times and sizes as well. Three points are flagged
+   for veto there.
 3. **The client library**: binding to crippy's explicit component; checking crippy's signing
    certificate — `hasSigningCertificate` from API 28 and a SHA-256 of `PackageInfo.signatures` at 27,
    against a certificate the library carries (crippy D114); refusing any method above the service's

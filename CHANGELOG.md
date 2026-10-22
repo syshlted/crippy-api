@@ -5,6 +5,15 @@ than restating it.
 
 ## Unreleased
 
+### The contract's first surface — 2026-10-22
+
+- `ICrippyService` gains `openSession`; `ICrippySession` carries everything a file manager does: stat, list in
+  pages, measure, read, write, create, rename, move, delete, set times, previews, handoffs, space and lock. Three
+  oneway listeners report state, the end of a write and a preview (L11).
+- Twelve structured parcelables, each with a status that is never 0 (L2, L11).
+- `WireNamesTest` pins every interface token and every method's transaction code; `ParcelableEvolutionTest` runs
+  the rule that a parcelable's fields are only ever appended.
+
 ### Dependency scanning — 2026-10-22
 
 - `dependencies.yml`: OSV-Scanner over the two release runtime classpaths, failing on any advisory,

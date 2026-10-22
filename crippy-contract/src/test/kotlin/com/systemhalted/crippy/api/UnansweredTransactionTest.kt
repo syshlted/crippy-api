@@ -4,6 +4,7 @@ import android.os.Binder
 import android.os.IInterface
 import android.os.Parcel
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -28,6 +29,8 @@ class UnansweredTransactionTest {
         val crippy =
             object : ICrippyService.Stub() {
                 override fun contractVersion(): Int = ICrippyService.VERSION
+
+                override fun openSession(listener: IVaultListener?): SessionResult? = null
             }
         assertEquals(ICrippyService.VERSION, proxyOver(Remote(crippy)).contractVersion())
     }
@@ -35,6 +38,13 @@ class UnansweredTransactionTest {
     @Test
     fun `a service that does not implement the method answers zero rather than failing`() {
         assertEquals(0, proxyOver(Remote(null)).contractVersion())
+    }
+
+    @Test
+    fun `a session asked of a service that does not have the method reads as no answer`() {
+        // A parcelable result reads as null from an empty reply, which is why every result carries a
+        // status that is never 0 and a client treats null as "not answered" rather than as a refusal.
+        assertNull(proxyOver(Remote(null)).openSession(null))
     }
 
     private fun proxyOver(binder: Binder): ICrippyService = ICrippyService.Stub.asInterface(binder)

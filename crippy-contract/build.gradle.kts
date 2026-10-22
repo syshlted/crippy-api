@@ -56,14 +56,28 @@ tasks.withType<Test>().configureEach {
     jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }
 
-// The gate measures what was written here, never what the aidl tool generated from it (L4): a stub
-// and proxy are the tool's code, and counting them would make the number say how many methods the
-// contract has. Everything that implements a Binder interface is generated, so that is the filter.
+// The gate measures what was written here, never what the aidl tool generated from it (L4): a stub,
+// a proxy or a structured parcelable is the tool's code, and counting it would make the number say how
+// many methods and fields the contract has. So every class an .aidl file names is excluded, with its
+// inner classes, by name: since L11 the tool generates parcelables too, which do not implement a Binder
+// interface and slipped past the first filter, and a hand-written Parcelable must not be swept out with
+// them by a filter on its supertype.
+val generatedFromAidl =
+    fileTree("src/main/aidl") { include("**/*.aidl") }.flatMap { file ->
+        val name =
+            file
+                .relativeTo(file("src/main/aidl"))
+                .invariantSeparatorsPath
+                .removeSuffix(".aidl")
+                .replace('/', '.')
+        listOf(name, "$name$*")
+    }
+
 kover {
     reports {
         filters {
             excludes {
-                inheritedFrom("android.os.IInterface")
+                classes(generatedFromAidl)
             }
         }
         verify {
