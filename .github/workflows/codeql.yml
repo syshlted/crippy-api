@@ -58,14 +58,18 @@ jobs:
           build-mode: ${{ matrix.build-mode }}
           queries: security-extended
 
-      # CodeQL sees only what a compiler compiles while it watches. --no-build-cache is load-bearing:
-      # setup-gradle restores the build cache, and a compile restored from it is a class file CodeQL
-      # never saw — measured, the aidl tool's Java vanished from the database (L7). --no-daemon keeps
-      # the build in a process started under CodeQL rather than one that was already running. The
+      # CodeQL sees only what a compiler compiles while it watches, and two of these are load-bearing,
+      # both measured (L7). --no-build-cache: setup-gradle restores the build cache, and a compile
+      # restored from it is a class file CodeQL never saw, so the aidl tool's Java vanished from the
+      # database. The in-process Kotlin compiler: under Kotlin 2.4 (L9) a Kotlin file was compiled and
+      # never captured without it. --no-daemon keeps the build in a process started under CodeQL. The
       # release variant, because the release AAR is what a client links (L3).
       - if: matrix.build-mode == 'manual'
         name: Build what ships
-        run: ./gradlew --no-daemon --no-build-cache assembleRelease
+        run: >-
+          ./gradlew --no-daemon --no-build-cache
+          -Pkotlin.compiler.execution.strategy=in-process
+          assembleRelease
 
       - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:

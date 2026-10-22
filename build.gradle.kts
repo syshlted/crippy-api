@@ -4,6 +4,15 @@ import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
+// The Kotlin every module compiles with (L9). AGP 9 builds Kotlin in and depends on 2.2.10; one
+// classpath holds one version of a plugin, so declaring a newer one here is what AGP's built-in Kotlin
+// then uses.
+buildscript {
+    dependencies {
+        classpath(libs.kotlin.gradle.plugin)
+    }
+}
+
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.ktlint)

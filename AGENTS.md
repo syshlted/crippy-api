@@ -88,16 +88,23 @@ its own web-flow key, so `commit-policy` would be verifying GitHub rather than t
 **Regenerating the dependency verification metadata**, after adding or bumping anything:
 
 ```sh
+rm gradle/verification-metadata.xml
 ./gradlew --write-verification-metadata sha256 --refresh-dependencies --rerun-tasks \
   ktlintCheck detekt allUnitTests koverVerify koverXmlReport assemble
 ```
+
+**Start from an empty file, which is two steps past crippy's note.** `--write-verification-metadata`
+merges into the file it finds and never removes an entry, so regenerating over it keeps everything
+the build has stopped using. Measured at L9: after the move to Kotlin 2.4.21 a merged file still held
+all 31 components of the Kotlin 2.2.10 toolchain, which a scan of the file then reports as though the
+build still ran them. The header Gradle writes into a new file is the one this file had.
 
 **`--rerun-tasks` is not optional, which is one step past crippy's note.** A task that is up to date
 resolves nothing, so the first metadata written here missed `aapt2` — which only an *executing*
 resource compile asks for — and the next clean build failed verification on it. The file is `sha256`
 with signature verification off, so it freezes the dependency set rather than attesting it, as
-crippy's does (crippy D7). All 619 of its artifacts are in crippy's file too, with the same hashes —
-541 until Robolectric came in for L8.
+crippy's does (crippy D7). All 624 of its artifacts are in crippy's file too, with the same hashes —
+541 until Robolectric came in for L8, then 619 before the file was regenerated from empty at L9.
 
 ## Local development environment
 
@@ -231,6 +238,9 @@ is what a client links.
 the client's metadata cannot be read by an app compiling with a much older Kotlin, and its
 `kotlin-stdlib` dependency raises the app's. `languageVersion`, `apiVersion` and `coreLibrariesVersion`
 are the levers. Java callers are unaffected either way. Filed in `ROADMAP.md`, not settled here.
+**Moved by L9:** the build is Kotlin 2.4.21 now, so by default the metadata is 2.4 — which Kotlin's
+compiler reads only from 2.3 on, by its rule of reading one version ahead — and the stdlib an app
+receives is 2.4.21. Still the same three levers, and still not settled.
 
 ### L4 — Coverage gates measure what was written here, never what the aidl tool generated
 *2026-10-22 · accepted*
@@ -331,10 +341,12 @@ what `codeql-action` v4.39.1 downloads — in a throwaway clone:
 **`--no-build-cache` is load-bearing, measured.** This repository turns the build cache on, and
 `setup-gradle` restores it between runs. With a warm cache, the Java compile came back `FROM-CACHE` and
 the aidl tool's Java was missing from the database: a compile restored from a cache is a class file
-CodeQL never saw. **Running the Kotlin compiler in-process is not needed, also measured**: without
+CodeQL never saw. ~~**Running the Kotlin compiler in-process is not needed, also measured**: without
 `kotlin.compiler.execution.strategy=in-process` the planted Kotlin file was still captured, so the flag
-is not in the workflow. `--no-daemon` stays as cheap insurance against a daemon started before
-CodeQL's tracing began; nothing starts one today.
+is not in the workflow.~~ **True of Kotlin 2.2 and false of 2.4 (L9), so the flag is in the
+workflow.** Under 2.4.21 the planted file compiled and never reached the database without it; with it,
+it was captured and the planted cipher found. `--no-daemon` stays as cheap insurance against a daemon
+started before CodeQL's tracing began; nothing starts one today.
 
 **The job does not leave the token in `.git/config`** (`persist-credentials: false`), because it holds
 `security-events: write` and runs the build, and with it every Gradle plugin the build resolves.
@@ -354,8 +366,9 @@ step with crippy (L3), which is how a team learns to stop reading alerts. The sh
 in `ROADMAP.md`. Dependabot alerts are on and see nothing in the meantime: GitHub reads no Gradle build
 until a dependency graph is submitted to it.
 
-*Rejected:* CodeQL's default setup, because its build is CodeQL's choice rather than ours, and skipping
-the build cache is the one thing measured to matter. *Rejected:* detekt's SARIF in the Security tab,
+*Rejected:* CodeQL's default setup, because its build is CodeQL's choice rather than ours, and both
+things measured to matter — skipping the build cache, and since L9 the in-process compiler — are flags
+on the build command. *Rejected:* detekt's SARIF in the Security tab,
 because detekt fails the build, so its alerts would exist only on a red build. *Rejected:* a third-party
 workflow scanner; CodeQL's own `actions` queries caught the planted injection.
 
@@ -401,6 +414,33 @@ device, across a real `BinderProxy`, which waits for the client's device tests (
 
 *Rejected:* waiting for item 3 to bring Robolectric; the claim was already load-bearing. *Rejected:* API
 34 to match crippy, which would test neither end of the range this library promises.
+
+### L9 — Kotlin 2.4.21, ahead of the 2.2.10 AGP depends on
+*2026-10-22 · accepted, at the user's direction; made in crippy the same day, as crippy D119*
+
+**For one advisory, and the only one in the build's tooling with a way in.** GHSA-r937-wjx7-w2jp is
+code execution through deserialized Kotlin build-cache entries, in `kotlin-gradle-plugin` before
+2.4.20. This repository turns the build cache on and CI restores it, so the path exists, though narrowly:
+a pull request cannot write the cache `master` reads. **Waiting for AGP does not fix it**: 9.4.1 is the
+newest stable AGP and 9.5.0-rc01 still depends on 2.2.10.
+
+**One version on one classpath.** The Kotlin plugin is on the root build's classpath at 2.4.21, and
+since one classpath holds one version of a plugin, AGP's built-in Kotlin compiles with it. Measured on
+the class files rather than assumed: a test class's `kotlin.Metadata` went from `mv=[2,2,0]` to
+`mv=[2,4,0]`, and the compile runs `kotlin-build-tools-impl` 2.4.21. The 2.4.0 artifacts in the
+metadata belong to the plugin's ABI-validation tool, which pins its own version and runs only when
+asked — a candidate for the API dump check `ROADMAP.md` owes before the first release.
+
+**Two consequences, both measured.** CodeQL now needs the Kotlin compiler in-process (L7, amended).
+And regenerating the metadata over the old file kept the whole 2.2.10 toolchain, so the file is now
+regenerated from empty (*Repo conventions*): 379 components to 348, all of them still in crippy's.
+
+**And one that is still open**: the Kotlin an app needs (L3), which the move changed by default to
+2.3 or newer, with stdlib 2.4.21.
+
+*Rejected:* building without the build cache in CI until AGP moves, which has no end date while AGP's
+next release still pins 2.2.10. *Rejected:* a dependency constraint forcing the version instead of a
+classpath entry; it does the same, and says less about why it is there.
 
 ---
 

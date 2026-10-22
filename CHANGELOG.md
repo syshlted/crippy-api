@@ -5,6 +5,17 @@ than restating it.
 
 ## Unreleased
 
+### Kotlin 2.4.21 — 2026-10-22
+
+- The build compiles with Kotlin 2.4.21 rather than the 2.2.10 AGP depends on, for GHSA-r937-wjx7-w2jp,
+  code execution through the Kotlin build cache. The same move in crippy as its D119 (L9).
+- The CodeQL build runs the Kotlin compiler in-process, which 2.4 needs and 2.2 did not (L7, L9).
+- Dependency verification metadata regenerated from an empty file, because regenerating over it kept
+  the whole Kotlin 2.2.10 toolchain: 348 components, all of them in crippy's (L9).
+
+**Known issues.** The Kotlin an app needs to compile against the client is now 2.3 or newer by
+default, still undecided (L3).
+
 ### The contract's behavior is tested — 2026-10-22
 
 - `UnansweredTransactionTest` runs L2's claim through the generated proxy over a real `Parcel`: a

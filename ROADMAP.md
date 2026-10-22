@@ -48,7 +48,8 @@ item 3.
   its methods now, checked in CI. Until a release exists there is nothing to compare against.
 - **An API dump check** for the Kotlin surface — the binary-compatibility validator, or Kotlin's own
   ABI validation once AGP's built-in Kotlin exposes it.
-- **The Kotlin floor for consumers** (L3): `languageVersion`, `apiVersion`, `coreLibrariesVersion`.
+- **The Kotlin floor for consumers** (L3): `languageVersion`, `apiVersion`, `coreLibrariesVersion`. Since
+  L9 the default is an app on Kotlin 2.3 or newer, receiving stdlib 2.4.21.
 - **Publishing** (L1): Maven Central, with `com.systemhalted` verified by a DNS record on
   `systemhalted.com`; the signing of artifacts; and reproducible AARs checked as crippy's release is
   (crippy D116).
