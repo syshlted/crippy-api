@@ -34,6 +34,13 @@ item 3.
    snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.
 6. **Device tests** for the client against a real crippy, which needs crippy's APK on the device or
    emulator; then `instrumented.yml`.
+7. **Dependency scanning of what ships** (L7): Gradle dependency locking on the two release runtime
+   classpaths, and OSV-Scanner over those lockfiles with its SARIF in the Security tab. Today that is
+   `kotlin-stdlib` and `annotations`, with no advisories, so it starts green and fails the day a
+   vulnerable runtime dependency arrives. The scanner as a release binary checked against its
+   published SHA-256: `osv-scanner-action` runs a Docker image by tag, which pinning the action's SHA
+   does not pin (crippy D7). The 13 build-tooling advisories go with the next toolchain bump, made in
+   step with crippy (L3).
 
 ## Before the first release
 
@@ -54,8 +61,14 @@ item 3.
   keeps a commit signed by GitHub rather than the author, which `commit-policy` never checks because it
   is already on the remote. **Recommended: replace it**, before anything else lands on GitHub. The
   user decides.
-- **Branch protection on `master`**: signed commits, a review, `ci` and `commit-policy` required.
+- **Branch protection on `master`**: signed commits, a review, `ci`, `commit-policy` and both `codeql`
+  jobs required, and code scanning merge protection, so a pull request that adds a high or critical
+  alert cannot merge (L7).
 - **Merge commits or rebases only**, never a squash (`AGENTS.md`, *Repo conventions*).
+- **Actions must be pinned to a full commit SHA**, a repository setting that is off: every workflow
+  already pins (crippy D7), and the setting makes an unpinned one fail rather than run.
+- **The first `codeql` run on `master` is the baseline** a pull request's results are compared with;
+  check that both languages report, and that `java-kotlin` lists the aidl tool's Java (L7).
 
 ## Bug queue
 

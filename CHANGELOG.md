@@ -5,6 +5,16 @@ than restating it.
 
 ## Unreleased
 
+### Code scanning — 2026-10-22
+
+- `codeql.yml`: CodeQL's `security-extended` suite over the Kotlin and Java the release build compiles,
+  and over the workflows, on pull requests, pushes to `master` and weekly. Checked locally with the CLI
+  the pinned action uses: a planted weak cipher in Kotlin and a planted script injection in a workflow
+  were both found, and today's code and workflows have no findings (L7).
+- Secret scanning and push protection are on for the GitHub repository (L7).
+- Dependency scanning is not added: all 13 known advisories in the frozen dependency set are in build
+  tooling, and nothing that ships has one. Scanning what ships is in `ROADMAP.md` (L7).
+
 ### The repository is crippy-api — 2026-10-22
 
 - Renamed from `libcrippy`: the repository, its directory and the root project's name. The artifacts,

@@ -1,0 +1,72 @@
+# Code scanning (L7). CodeQL over the code this repository compiles, Kotlin and the Java the aidl tool
+# generates, and over the workflows themselves. Results land in the repository's Security tab.
+name: codeql
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  # Weekly as well, because a new query release finds bugs in code nobody has touched.
+  schedule:
+    - cron: '27 6 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  # A push or a scheduled run on master is a result the Security tab keeps, so only a pull request's
+  # superseded run is cancelled.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: actions
+            build-mode: none
+    steps:
+      # Pinned to full commit SHAs, as every action here is (crippy D7). persist-credentials is off
+      # because this job runs the build, and with it the code of every Gradle plugin the build
+      # resolves; none of it needs the token written into .git/config.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - if: matrix.build-mode == 'manual'
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+
+      # v4.39.1 runs CodeQL 2.27.3, the bundle this workflow was checked against locally (L7).
+      - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      # CodeQL sees only what a compiler compiles while it watches. --no-build-cache is load-bearing:
+      # setup-gradle restores the build cache, and a compile restored from it is a class file CodeQL
+      # never saw — measured, the aidl tool's Java vanished from the database (L7). --no-daemon keeps
+      # the build in a process started under CodeQL rather than one that was already running. The
+      # release variant, because the release AAR is what a client links (L3).
+      - if: matrix.build-mode == 'manual'
+        name: Build what ships
+        run: ./gradlew --no-daemon --no-build-cache assembleRelease
+
+      - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: /language:${{ matrix.language }}

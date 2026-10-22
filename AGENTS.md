@@ -304,6 +304,58 @@ names and never the root's, so nothing that will depend on this library sees the
 `LICENSE` that differs from ours by one leading blank line. It shares no history with `master`, so the
 first push either replaces it or merges it (`ROADMAP.md`).
 
+### L7 — Code scanning is CodeQL, over the code and over the workflows, with secret scanning on
+*2026-10-22 · accepted; **flagged for veto on the query suite and on leaving dependency scanning
+out***
+
+**`codeql.yml` analyzes two languages** on every pull request, every push to `master` and once a week,
+because a new query release finds bugs in code nobody touched. `java-kotlin` is built by the workflow
+itself — `assembleRelease`, the AAR a client links (L3) — and `actions` reads `.github/workflows` with
+no build. Results go to the repository's Security tab. The suite is `security-extended`: quality
+findings are detekt's, and detekt already fails the build.
+
+**Checked before it ever ran in CI, with the CLI the pinned action uses** — CodeQL 2.27.3, which is
+what `codeql-action` v4.39.1 downloads — in a throwaway clone:
+
+| Check | Result |
+|---|---|
+| What the build captures today | the Java the aidl tool generates, and nothing else: no main source set holds Kotlin yet |
+| A planted `Cipher.getInstance("DES")` in a Kotlin file in `crippy-client` | **found**, `java/weak-cryptographic-algorithm`, so AGP 9's built-in Kotlin 2.2.10 is extracted |
+| `security-extended` over today's code | 0 findings |
+| The three workflows, `codeql.yml` included | 0 findings from 23 rules |
+| A planted `pull_request_target` workflow echoing a pull request's title | **found**, `actions/code-injection/critical` |
+
+**`--no-build-cache` is load-bearing, measured.** This repository turns the build cache on, and
+`setup-gradle` restores it between runs. With a warm cache, the Java compile came back `FROM-CACHE` and
+the aidl tool's Java was missing from the database: a compile restored from a cache is a class file
+CodeQL never saw. **Running the Kotlin compiler in-process is not needed, also measured**: without
+`kotlin.compiler.execution.strategy=in-process` the planted Kotlin file was still captured, so the flag
+is not in the workflow. `--no-daemon` stays as cheap insurance against a daemon started before
+CodeQL's tracing began; nothing starts one today.
+
+**The job does not leave the token in `.git/config`** (`persist-credentials: false`), because it holds
+`security-events: write` and runs the build, and with it every Gradle plugin the build resolves.
+`ci.yml` and `commit-policy.yml` keep crippy's form: their token can only read a public repository.
+
+**Secret scanning and push protection are on**, set on GitHub on 2026-10-22 at the user's request: a
+push that carries a recognized credential is refused before it lands. Non-provider patterns and
+validity checks are part of the paid GitHub Secret Protection even on a public repository; asking for
+them left them off without an error.
+
+**Dependency scanning is left out, measured rather than assumed.** OSV-Scanner 2.7.0 over
+`gradle/verification-metadata.xml` finds 13 advisories in 9 packages, every one build tooling —
+AGP's Bouncy Castle 1.80.2, logback, freemarker, jose4j, jdom2, `kotlin-gradle-plugin` 2.2.10 itself.
+What ships in the release AARs is `kotlin-stdlib` 2.2.10 and `annotations` 13.0, with none. Scanning the
+whole frozen set would start at 13 alerts that nothing here can fix without bumping the toolchain in
+step with crippy (L3), which is how a team learns to stop reading alerts. The shape that would work is
+in `ROADMAP.md`. Dependabot alerts are on and see nothing in the meantime: GitHub reads no Gradle build
+until a dependency graph is submitted to it.
+
+*Rejected:* CodeQL's default setup, because its build is CodeQL's choice rather than ours, and skipping
+the build cache is the one thing measured to matter. *Rejected:* detekt's SARIF in the Security tab,
+because detekt fails the build, so its alerts would exist only on a red build. *Rejected:* a third-party
+workflow scanner; CodeQL's own `actions` queries caught the planted injection.
+
 ---
 
 ## Open questions
