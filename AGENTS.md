@@ -96,7 +96,8 @@ its own web-flow key, so `commit-policy` would be verifying GitHub rather than t
 resolves nothing, so the first metadata written here missed `aapt2` — which only an *executing*
 resource compile asks for — and the next clean build failed verification on it. The file is `sha256`
 with signature verification off, so it freezes the dependency set rather than attesting it, as
-crippy's does (crippy D7). All 541 of its artifacts are in crippy's file too, with the same hashes.
+crippy's does (crippy D7). All 619 of its artifacts are in crippy's file too, with the same hashes —
+541 until Robolectric came in for L8.
 
 ## Local development environment
 
@@ -192,8 +193,9 @@ at **1**, which is not a formality — see the next paragraph.
 
 **A method an older service does not have answers zero, not an error.** Read from the generated proxy:
 it ignores what `transact` returns, so an unknown transaction leaves an empty reply, `readException()`
-finds no exception in it, and the result reads as `0`, `false` or `null`. Not measured on a device; it
-is the aidl tool's code at build-tools 36. Three consequences:
+finds no exception in it, and the result reads as `0`, `false` or `null`. It is the aidl tool's code
+at build-tools 36, **run under Robolectric at API 27 and 36 since L8** and still not measured on a
+device. Three consequences:
 
 1. **A client never calls a method above the service's `contractVersion()`.** The client library will
    enforce it, because the failure is silent.
@@ -248,7 +250,8 @@ load-bearing: with it removed, `crippy-contract` fails at 0%.
 **A rule over no code passes, measured**: both modules are at 0 of 0 lines today and `koverVerify`
 passes. So the gates are wired now rather than in the commit that adds the code they measure, and they
 bite the moment that code arrives — the opposite order to crippy's `:provider`, whose gate landed with
-the provider.
+the provider. **That they bite is measured too (L8)**: one untested Kotlin file in `crippy-client`
+fails `koverVerify` at 0% against 90%.
 
 ### L5 — The client hides the contract
 *2026-10-22 · accepted, at the user's direction: "hide them if it makes it easier to create clients"*
@@ -355,6 +358,49 @@ until a dependency graph is submitted to it.
 the build cache is the one thing measured to matter. *Rejected:* detekt's SARIF in the Security tab,
 because detekt fails the build, so its alerts would exist only on a red build. *Rejected:* a third-party
 workflow scanner; CodeQL's own `actions` queries caught the planted injection.
+
+### L8 — The contract's one behavior is run, under Robolectric at API 27 and 36
+*2026-10-22 · accepted; **flagged for veto on bringing Robolectric forward and on SDK 36's JVM flag***
+
+The question was whether the unit tests were properly defined before the first push. **The wiring
+holds, measured by breaking it**: a failing test fails `allUnitTests`, which CI and the pre-push hook
+both run; one untested Kotlin file in `crippy-client` fails `koverVerify` at 0% against 90%; and L4's
+filter is already load-bearing. **The gap was a claim, not a gate.** L2's *a method an older service
+does not have answers zero* is the only behavior the contract has, and the whole of why version 0 can
+never be crippy's, and it had been read from the generated proxy and never run.
+
+**`UnansweredTransactionTest` runs it through the generated proxy over a real `Parcel`.** A binder that
+does not know transaction 1 answers `0` with no exception. The control beside it — a stub behind a
+binder of its own, answering `VERSION` — is what makes the zero mean anything: a `Parcel` that read
+zero for everything would pass the first case alone. The proxy assigns `transact`'s return to
+`_status` and never reads it, so a build-tools release that turns an unanswered transaction into an
+exception fails this test, and L2's three consequences get re-read rather than quietly changing.
+
+**Robolectric is what makes it runnable at all.** The mockable `android.jar` has no `Parcel`: `obtain`
+throws, or with `returnDefaultValues` answers null. So Robolectric 4.17, JUnit 4 and the vintage engine
+come in now, crippy's versions in crippy's arrangement (crippy D13), and they were coming anyway: the
+client's binding tests in `ROADMAP.md` item 3 need them. The dependency set went from 541 artifacts to
+619, every one already in crippy's metadata with the same hash.
+
+**At API 27 and 36, where crippy runs 27 and 34**: the floor, and the platform this library compiles
+against. Two things had to be found to get there, both measured:
+
+- **SDK 36 needs `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` on JDK 21.** Robolectric
+  4.17 sets up API 36's `ApplicationSharedMemory` by writing a `FileDescriptor` through
+  `jdk.internal.access.SharedSecrets`, which JDK 21 does not export. Without the flag every SDK 36 case
+  fails before it starts, *"Failed to interact with raw FileDescriptor internals"*; `--add-opens` for
+  `java.io`, the first guess, changes nothing. crippy has never run Robolectric at 36, and would need the
+  same flag.
+- **API 27's `Binder.queryLocalInterface` dereferences a descriptor a bare `Binder` never attached**,
+  where API 28 and later check for null. The test's binder answers null, which is what a `BinderProxy`
+  answers and what makes `asInterface` build a proxy at all.
+
+**Still owed, and not tests for code that does not exist yet**: L5's guard before the client's first
+public type, and the append-only gate before the first release (`ROADMAP.md`). And L2's claim on a
+device, across a real `BinderProxy`, which waits for the client's device tests (item 6).
+
+*Rejected:* waiting for item 3 to bring Robolectric; the claim was already load-bearing. *Rejected:* API
+34 to match crippy, which would test neither end of the range this library promises.
 
 ---
 

@@ -12,6 +12,9 @@ ktlintPlugin = "14.2.0"
 detekt = "1.23.8"
 kover = "0.9.9"
 junit = "5.14.4"
+# A real android.os.Parcel and Binder off a device, which the mockable android.jar does not have:
+# the generated proxy cannot run without them (L8).
+robolectric = "4.17"
 
 # minSdk 27, crippy's floor (crippy D14) and therefore the lowest level a client can ever find crippy
 # on. L1 records why a lower floor was not taken.
@@ -22,6 +25,9 @@ compileSdk = "36"
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
+junit4 = { module = "junit:junit", version = "4.13.2" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }

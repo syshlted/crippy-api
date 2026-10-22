@@ -5,6 +5,17 @@ than restating it.
 
 ## Unreleased
 
+### The contract's behavior is tested — 2026-10-22
+
+- `UnansweredTransactionTest` runs L2's claim through the generated proxy over a real `Parcel`: a
+  binder that does not know transaction 1 answers 0 with no exception, beside a control that answers
+  the version. At API 27 and 36, under Robolectric 4.17 and JUnit's vintage engine (L8).
+- SDK 36 needs `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` on JDK 21; the test task
+  carries it (L8).
+- Measured by breaking them: a failing test fails `allUnitTests`, and untested client code fails
+  `koverVerify` (L8).
+- Dependency verification metadata: 619 artifacts, up from 541, all of them in crippy's.
+
 ### Code scanning — 2026-10-22
 
 - `codeql.yml`: CodeQL's `security-extended` suite over the Kotlin and Java the release build compiles,

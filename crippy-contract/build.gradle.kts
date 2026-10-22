@@ -39,10 +39,21 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+
+    // Robolectric is a JUnit4 runner and the rest of the suite is JUnit5, so the vintage engine runs
+    // both under one Gradle task, as in crippy (crippy D13): two tasks would leave `allUnitTests`
+    // quietly covering one of them. It is here because the generated proxy needs a real Parcel (L8).
+    testImplementation(libs.robolectric)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    // Robolectric at SDK 36 sets up shared memory by writing a FileDescriptor's fd through
+    // jdk.internal.access.SharedSecrets, which JDK 21 does not export: without this every SDK 36 case
+    // fails before it starts, with "Failed to interact with raw FileDescriptor internals" (L8).
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }
 
 // The gate measures what was written here, never what the aidl tool generated from it (L4): a stub
