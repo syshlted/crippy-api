@@ -1,0 +1,16 @@
+# Deltas from detekt's default config only — every module sets
+# buildUponDefaultConfig = true, so anything absent here keeps its default.
+
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    # JUnit 5 test methods use backticked sentence names.
+    excludes: ['**/test/**', '**/androidTest/**']
+
+style:
+  MagicNumber:
+    excludes: ['**/test/**', '**/androidTest/**']
+  MaxLineLength:
+    maxLineLength: 120
