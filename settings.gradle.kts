@@ -40,5 +40,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "libcrippy"
 
-include(":contract")
-include(":client")
+include(":crippy-contract")
+include(":crippy-client")

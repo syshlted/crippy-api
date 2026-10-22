@@ -32,7 +32,7 @@ kotlin {
 
 dependencies {
     // `api`: a client's own types will name the contract's, so an app that sees the client sees them.
-    api(project(":contract"))
+    api(project(":crippy-contract"))
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

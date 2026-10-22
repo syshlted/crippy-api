@@ -1,16 +1,18 @@
 # libcrippy
 
-An Android library for reaching a crippy vault without the system file picker: the Binder contract
-crippy's companion service implements, and a client library that binds to it.
+A client-only Android library for reaching a crippy vault without the system file picker. It binds to
+crippy's companion service over AIDL; the service itself is part of crippy, not of this library.
 
 **Pre-release. Nothing is published, and the contract has one method.** See
 [`PROTOCOL.md`](PROTOCOL.md) for what the protocol says so far and [`ROADMAP.md`](ROADMAP.md) for
 what comes next.
 
+An app declares one dependency, the client. The contract comes with it.
+
 | Module | Artifact | What it is |
 |---|---|---|
-| `contract` | `com.systemhalted.libcrippy:contract` | the `.aidl` files, which are the specification |
-| `client` | `com.systemhalted.libcrippy:client` | what an app integrates |
+| `crippy-client` | `com.systemhalted.crippy:crippy-client` | what an app integrates |
+| `crippy-contract` | `com.systemhalted.crippy:crippy-contract` | the `.aidl` files, which are the specification |
 
 ## Building
 

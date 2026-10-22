@@ -78,7 +78,7 @@ def executable_lines(reports: list[Path]) -> dict[str, dict[int, bool]]:
     Kover's XML gives a package name and a bare file name, not a repo path, so the key here is the
     *suffix* a repo path has to end with. Merging several reports by union is deliberate: a line
     covered by any module's suite is covered, which matters for
-    `:contract`, whose hand-written types the client's tests will exercise.
+    `crippy-contract`, whose hand-written types the client's tests will exercise.
     """
     lines: dict[str, dict[int, bool]] = {}
     for report in reports:

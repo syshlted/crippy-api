@@ -1,7 +1,7 @@
 # Single source of truth for dependency versions.
 #
 # The toolchain is crippy's, version for version (AGENTS.md L3): crippy compiles its service against
-# :contract, and the file manager compiles against both modules, so a bump is made in all three
+# crippy-contract, and the file manager against crippy-client, so a bump is made in all three
 # repositories together or not at all. Nothing here is the contract's version, which is a constant in
 # the .aidl file it describes (L2).
 

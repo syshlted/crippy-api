@@ -27,7 +27,7 @@ val allUnitTests =
 allprojects {
     // The coordinates a composite build substitutes on (L1). The file manager declares these and,
     // while both repositories are changing, includes this build instead of resolving them.
-    group = "com.systemhalted.libcrippy"
+    group = "com.systemhalted.crippy"
     version = "0.1.0-SNAPSHOT"
 
     apply(plugin = "org.jlleitschuh.gradle.ktlint")

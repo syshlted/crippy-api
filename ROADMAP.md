@@ -25,7 +25,10 @@ item 3.
    certificate — `hasSigningCertificate` from API 28 and a SHA-256 of `PackageInfo.signatures` at 27,
    against a certificate the library carries (crippy D114); refusing any method above the service's
    `contractVersion()`, because an older service answers zero rather than an error (L2); the session's
-   `linkToDeath`; and launching the consent Activity with `startActivityForResult`.
+   `linkToDeath`; and launching the consent Activity with `startActivityForResult`. Whether the
+   contract's types are part of the client's public surface, as `api` makes them today, or hidden
+   behind the client's own, is decided here: an app integrating a client-only library (L1) should not
+   need to see AIDL types at all.
 4. **`PROTOCOL.md` grows with 2 and 3**, so an author can integrate without reading either decision log.
 5. **The registry** (crippy D114, D115): its format, a validator CI runs on every pull request, the
    snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.

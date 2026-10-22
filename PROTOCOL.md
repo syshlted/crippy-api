@@ -11,7 +11,7 @@ of the below for you; this file is for anyone who wants to know what it does, or
 ## The service
 
 - The interface is `com.systemhalted.crippy.api.ICrippyService`, specified by
-  [`ICrippyService.aidl`](contract/src/main/aidl/com/systemhalted/crippy/api/ICrippyService.aidl).
+  [`ICrippyService.aidl`](crippy-contract/src/main/aidl/com/systemhalted/crippy/api/ICrippyService.aidl).
   The `.aidl` file is normative; where it and this page disagree, the `.aidl` file is right.
 - It is exported by the app `com.systemhalted.crippy`. The component a client binds to is not
   defined yet.

@@ -114,12 +114,41 @@ Waydroid are recorded there under *Local development environment*. Three facts m
 
 ## Decisions
 
-### L1 — Two Android libraries, `com.systemhalted.libcrippy:contract` and `:client`, at crippy's floor
-*2026-10-22 · accepted, **flagged for veto on the floor and the coordinates***
+### L1 — A client-only library: `com.systemhalted.crippy:crippy-client`, with the contract beside it
+*2026-10-22 · accepted; **minSdk 27 confirmed by the user the same day as a hard limit**; coordinates
+revised the same day for a client-only library, and **flagged for veto on them***
 
-**Two modules because crippy D115 publishes two artifacts.** `:contract` is the `.aidl` files and the
-hand-written types they name, which crippy's service and every client compile against. `:client`
-depends on it with `api`, because a client's types will name the contract's.
+**libcrippy is client-only** — the user's direction, 2026-10-22. It is the library an app uses to
+connect to crippy's AIDL interface, and none of crippy's service is in it; the service is crippy's.
+
+**Two modules all the same, and an app names one.** `crippy-client` is what an app declares.
+`crippy-contract` is the `.aidl` files and the hand-written types they name; the client depends on it,
+so it arrives transitively and no app names it. It is published separately because crippy's service
+compiles against the same files: one copy of the wire specification, which crippy's build pins by
+version and hash (crippy D7, D116), rather than a second copy in crippy kept in step by hand. The aidl
+tool generates a `Stub` beside every proxy, so the contract alone could never be client-only; what makes
+the library client-only is that nothing else in it serves anything.
+
+*Rejected:* one artifact, with the contract folded into the client. AGP has no supported way to put one
+library module's classes into another's AAR, and crippy would then link the whole client — binding,
+the check that the service is crippy — to get an interface. *Rejected:* a copy of the `.aidl` files in
+crippy. Two copies of a wire specification is how they come to disagree.
+
+**Named for what they are, under the product's group.** Group `com.systemhalted.crippy`, so everything
+first-party for crippy sits under one name; artifact IDs that say crippy and what they are, because a
+bare `client` means nothing in an app's dependency list or in an AAR's filename. Each Gradle project is
+named after its artifact, because a composite build substitutes on `group:project name`: the file
+manager declares `com.systemhalted.crippy:crippy-client` and, while both repositories change, includes
+this build instead of resolving it (crippy D115). The packages do not change with them —
+`com.systemhalted.crippy.api` for the contract (L2), `com.systemhalted.crippy.client` for the client.
+Version `0.1.0-SNAPSHOT`. *First set as `com.systemhalted.libcrippy:contract` and `:client`, and
+renamed the same day before anything depended on them.*
+
+**Where they are published is not decided, and the group depends on it.** Maven Central verifies a
+namespace before it publishes under it, so `com.systemhalted` needs a DNS record on `systemhalted.com`;
+if that domain is not ours, the group becomes `io.github.<org>`. GitHub Packages needs a token even to
+read, which is a poor fit for a library meant to be easy to integrate. Nothing is published yet.
+**Flagged** on the names and on that dependency.
 
 **Both are Android libraries.** A Binder interface is `android.*` by definition, so the purity crippy
 D5 keeps for `:core-*` has nothing to buy here. If something pure-JVM arrives — the registry's
@@ -130,29 +159,24 @@ validator is the likely first — it gets a module of its own, and `allUnitTests
 is what crippy's `PublicSurfaceTest` does for `:provider` by scanning source. Here the compiler does it:
 a public class without a visibility modifier fails `compileDebugKotlin`, checked by adding one.
 
-**minSdk 27, crippy's floor.** crippy cannot run below 27 (crippy D14), so a client cannot find crippy
-there; and `SharedMemory`, which crippy D113 names for previews below API 30, is itself API 27.
-*Rejected:* a lower floor so that apps with an older minSdk can integrate without
+**minSdk 27, crippy's floor, and a hard limit.** crippy cannot run below 27 (crippy D14), so a client
+cannot find crippy there; and `SharedMemory`, which crippy D113 names for previews below API 30, is
+itself API 27. It covers every phone here — API 28, 29, 30 and 36 — and the emulator is the only device
+at 27. *Rejected:* a lower floor so that apps with an older minSdk can integrate without
 `tools:overrideLibrary`. It would mean code paths on API levels where the only answer is *crippy is not
-installed*, and tests at levels nobody runs crippy on. **Flagged** because it is a cost on every app
-that integrates: one whose minSdk is below 27 has to raise it or override the library's.
-
-**Coordinates `com.systemhalted.libcrippy:contract` and `com.systemhalted.libcrippy:client`, version
-`0.1.0-SNAPSHOT`.** Set now because a composite build substitutes on them: the file manager declares
-these and, while both repositories are changing, includes this build instead of resolving them
-(crippy D115). **Where they are published is not decided** — Maven Central needs the group's domain
-verified, and GitHub Packages needs a token even to read — so nothing is published yet.
+installed*, and tests at levels nobody runs crippy on. An app whose minSdk is below 27 raises it or
+overrides the library's. **Confirmed by the user the same day.**
 
 ### L2 — The contract's names and positions are permanent, and transaction 1 asks for the version
-*2026-10-22 · accepted, **flagged for veto on the package name***
+*2026-10-22 · accepted; **the package name confirmed by the user the same day***
 
 **The interface's package is a wire name.** Every transaction carries the interface's full name as its
 token — `com.systemhalted.crippy.api.ICrippyService` — and the generated stub refuses a call whose token
 does not match. Moving the `.aidl` file to another package therefore breaks every installed client,
 which makes the package as permanent as crippy's documents authority (crippy D11). The package is
 `com.systemhalted.crippy.api`: it names crippy rather than this library, because it is crippy's
-interface, and nothing in crippy uses that package (checked). **Flagged** because it is the one name
-here that can never change.
+interface, and nothing in crippy uses that package (checked). It is the one name here that can never
+change, and the user confirmed it the same day.
 
 **Methods are only ever appended** (crippy D115). The aidl tool numbers methods by position from
 `FIRST_CALL_TRANSACTION`, so removing, reordering or inserting one changes what every installed client
@@ -208,15 +232,15 @@ are the levers. Java callers are unaffected either way. Filed in `ROADMAP.md`, n
 
 | Module | Line | Branch | Why |
 |---|---|---|---|
-| `:contract` | 90% | — | its hand-written types will be few, and their layout is the wire |
-| `:client` | 90% | 85% | it will carry the check that the service is crippy, the code a reviewer reads first |
+| `crippy-contract` | 90% | — | its hand-written types will be few, and their layout is the wire |
+| `crippy-client` | 90% | 85% | it will carry the check that the service is crippy, the code a reviewer reads first |
 
 Plus **diff coverage >= 85% on changed lines** in every pull request, by crippy's
 `scripts/ci/diff-coverage.py` (crippy D5, B4). No module is exempt.
 
 **Generated stubs and proxies are excluded**, by `inheritedFrom("android.os.IInterface")`, because
 counting them would make the number say how many methods the contract has. The filter is
-load-bearing: with it removed, `:contract` fails at 0%.
+load-bearing: with it removed, `crippy-contract` fails at 0%.
 
 **A rule over no code passes, measured**: both modules are at 0 of 0 lines today and `koverVerify`
 passes. So the gates are wired now rather than in the commit that adds the code they measure, and they
@@ -227,7 +251,8 @@ the provider.
 
 ## Open questions
 
-- **Where the artifacts are published** (L1), and how they are signed.
+- **Where the artifacts are published** (L1), and how they are signed — and with it, whether the group
+  stays `com.systemhalted.crippy`.
 - **The Kotlin floor for consumers** (L3).
 - **Where crippy D113's spike lives** — a read-only `SharedMemory` handoff and a Binder round trip on
   the four phones. It needs a service and a client in two processes, and either repository could hold
