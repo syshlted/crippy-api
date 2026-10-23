@@ -27,16 +27,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The commits to check are base..head, or everything head reaches when there is no base to stop
+      # at. A new branch has none: its `before` is all zeros. Nor does a force push in practice: its
+      # `before` is the commit the push replaced, which the checkout does not fetch, and a range from a
+      # commit the clone lacks is one `git rev-list` refuses. Checking from head re-checks commits an
+      # earlier run passed, which costs API calls and nothing else.
       - name: Determine commit range
         id: range
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
-            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ]; then
+            base="$PR_BASE" head="$PR_HEAD"
           else
-            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
-            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            base="$BEFORE" head="$AFTER"
           fi
+          case "$base" in *[!0]*) ;; *) base="" ;; esac   # all-zero sha => new branch
+          if [ -n "$base" ] && ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "::notice::$base is not in this clone, so every commit $head reaches is checked"
+            base=""
+          fi
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "head=$head" >> "$GITHUB_OUTPUT"
 
       # Uses GitHub's own verification (the org's registered public keys) rather
       # than shipping a keyring into CI.
@@ -51,10 +68,11 @@ jobs:
           HEAD: ${{ steps.range.outputs.head }}
         run: |
           set -euo pipefail
-          case "$BASE" in *[!0]*) ;; *) BASE="" ;; esac   # all-zero sha => new branch
-          range="${BASE:+$BASE..}$HEAD"
+          # Listed into a variable first: a `git rev-list` that fails inside a `for` list escapes
+          # `set -e`, and the loop then checks nothing and passes.
+          commits="$(git rev-list "${BASE:+$BASE..}$HEAD")"
           fail=0
-          for sha in $(git rev-list "$range"); do
+          for sha in $commits; do
             read -r verified reason < <(
               gh api "repos/${{ github.repository }}/commits/$sha" \
                 --jq '"\(.commit.verification.verified) \(.commit.verification.reason)"'
@@ -73,10 +91,10 @@ jobs:
           HEAD: ${{ steps.range.outputs.head }}
         run: |
           set -euo pipefail
-          case "$BASE" in *[!0]*) ;; *) BASE="" ;; esac
+          commits="$(git rev-list "${BASE:+$BASE..}$HEAD")"   # not in the `for` list: see above
           fail=0
           tmp="$(mktemp)"
-          for sha in $(git rev-list "${BASE:+$BASE..}$HEAD"); do
+          for sha in $commits; do
             git log -1 --format=%B "$sha" > "$tmp"
             scripts/hooks/commit-msg "$tmp" || { echo "::error::  ^ in commit $sha"; fail=1; }
           done

@@ -5,6 +5,18 @@ than restating it.
 
 ## Unreleased
 
+### commit-policy checks a force push — 2026-10-23
+
+- **Bug fixed.** A push whose `before` is not in the runner's clone made `commit-policy` check no commit and pass.
+  A force push is that push: its `before` is the commit it replaced, which the checkout does not fetch. `git
+  rev-list` refused the range inside a `for` list, where `set -e` does not reach. Now such a push is checked from
+  every commit its head reaches, and a range `git rev-list` refuses fails the job. Found before the first push,
+  which replaces GitHub's initial commit (L6) and so is a force push. The workflow is crippy's (L3), which has the
+  same fix.
+- Measured with the workflow's own scripts, in a clone holding only what the runner fetches: a force push checks
+  all 14 commits, a new branch 14, a push from three commits back 3, a pull request two commits ahead 2. The old
+  scripts checked 0 on the force push and passed.
+
 ### The client — 2026-10-23
 
 - `Crippy.connect` checks crippy's signing certificate before it binds, against the app's own key or a pinned
