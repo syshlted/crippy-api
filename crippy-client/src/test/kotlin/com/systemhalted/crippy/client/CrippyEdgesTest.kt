@@ -85,6 +85,10 @@ class CrippyEdgesTest {
         died.onBindingDied(crippy)
         assertNull(died.service)
         ServiceBinding(context).onNullBinding(crippy)
+        // Robolectric's unbind disconnects with no name, which used to throw on whichever thread ran it.
+        died.onServiceDisconnected(null)
+        died.onBindingDied(null)
+        ServiceBinding(context).onNullBinding(null)
         // Unbinding something never bound is not an error.
         ServiceBinding(context).apply {
             unbind()

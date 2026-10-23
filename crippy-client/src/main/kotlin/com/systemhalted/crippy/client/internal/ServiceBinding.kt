@@ -43,16 +43,19 @@ internal class ServiceBinding internal constructor(
         first.complete(if (ours) binder else null)
     }
 
-    override fun onServiceDisconnected(name: ComponentName) {
+    // The three below never read the name, so they take one that is null: Android always sends one, and
+    // Robolectric's unbind sends none, which made a unit test fail whenever the looper ran the disconnect
+    // before the test's own thread had finished (L13).
+    override fun onServiceDisconnected(name: ComponentName?) {
         service = null
     }
 
-    override fun onBindingDied(name: ComponentName) {
+    override fun onBindingDied(name: ComponentName?) {
         service = null
         first.complete(null)
     }
 
-    override fun onNullBinding(name: ComponentName) {
+    override fun onNullBinding(name: ComponentName?) {
         first.complete(null)
     }
 
