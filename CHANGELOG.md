@@ -5,6 +5,20 @@ than restating it.
 
 ## Unreleased
 
+### Ready for a first release, but for publishing — 2026-10-23
+
+- **The public API is dumped and checked** in `api/crippy-client.api` and `api/crippy-registry.api`, through
+  kotlin-reflect, by `:api-dump`; `-PupdateApi` writes a new dump (L16).
+- **An app needs Kotlin 2.1**, where it needed 2.3, and receives kotlin-stdlib 2.2.10: language and API version 2.2,
+  measured with `kotlinc` 2.1.21 and 2.0.21 (L17).
+- **The contract only grows**, checked against the newest `v*` tag by `scripts/ci/append-only.py` (L18).
+- **A consumer needs no R8 rules**, measured with a minified app against crippy on the A20 (L18).
+
+**Bug found.** The first registry dump listed its internal `validate`, because the bytecode does not keep Kotlin's
+visibility at the top level; the dumper reads it from Kotlin (L16).
+
+**Known issues.** Publishing to Maven Central waits for the namespace and a signing decision (L1).
+
 ### The registry — 2026-10-23
 
 - `crippy-registry`: a JVM module with no dependencies, the format of `registry/<package>.app`, and a recognition per

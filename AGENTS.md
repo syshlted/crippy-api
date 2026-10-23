@@ -31,7 +31,10 @@ first surface is written (L11)**: a service, a session, three listeners and the 
 client is written (L12)**: connecting, trusting crippy, opening a session, every request the contract has, and the
 intents for the consent and unlock screens. crippy implements the service as its D120. **They have run against
 each other on two phones (L13)**, from a package that is not crippy's, and the run found a preview crippy made
-larger than the contract allows, which crippy now honours (crippy D121). **Pushed 2026-10-23** to `git@syshlt-github:syshlted/crippy-api.git`, replacing
+larger than the contract allows, which crippy now honours (crippy D121). The shared-memory read path crippy D113 asked about
+is measured and left unbuilt (L14). **The registry exists (L15)** and crippy builds it in, empty until an app has a
+release key. **What a first release needs is checked, but for publishing**: the public API is dumped (L16), an app
+needs Kotlin 2.1 (L17), the contract can only grow from the last tag and a consumer needs no R8 rules (L18). **Pushed 2026-10-23** to `git@syshlt-github:syshlted/crippy-api.git`, replacing
 GitHub's initial commit (L6). The first runs of `ci`, `commit-policy`, `codeql` and `dependencies` all passed, with
 no code-scanning alert.
 
@@ -245,7 +248,7 @@ tests)~~ (**added by L13**, at API 27 and 36), and the reproducible-build check 
 **Added: `assemble` in CI**, because the unit tests compile only the debug variant and the release AAR
 is what a client links.
 
-**One thing to decide before the first release: the Kotlin a consumer needs.** Built with Kotlin 2.2,
+**One thing to decide before the first release: the Kotlin a consumer needs.** **Decided by L17: Kotlin 2.1.** Built with Kotlin 2.2,
 the client's metadata cannot be read by an app compiling with a much older Kotlin, and its
 `kotlin-stdlib` dependency raises the app's. `languageVersion`, `apiVersion` and `coreLibrariesVersion`
 are the levers. Java callers are unaffected either way. Filed in `ROADMAP.md`, not settled here.
@@ -844,13 +847,91 @@ tag — waits on the same key, and on a first release to tag.
 *Rejected:* listing first-party apps by their shared key rather than one by one — crippy D115 has crippy and the file
 manager signed alike, and an entry per app is what lets one be refused without the other.
 
+### L16 — The public API is dumped by kotlin-reflect and checked on every test run
+*2026-10-23 · accepted. Builds the API dump `ROADMAP.md` owed before the first release, and is L5's guard grown
+into a full record.*
+
+**`api/crippy-client.api` and `api/crippy-registry.api` are the public API**, as an app or crippy compiles against
+it: every public and protected class with its kind, type parameters and supertypes, and every constructor, function
+and property with its parameter names and which have defaults, sorted. `PublicApiTest` in each module compares the
+module with its file; a difference fails with the lines removed and added, and `-PupdateApi` writes the new dump. A
+change to what an app compiles against is then a diff in review. Checked by renaming one parameter in the client's
+dump: the test named both lines.
+
+**Read through kotlin-reflect, because the bytecode cannot tell `internal` from public**: an internal declaration is
+public there, with a mangled name or, at the top level, none. The first dump of the registry listed its internal
+`validate` until top-level functions were mapped back to their Kotlin declarations; the module's own check is what
+said so. Parameter names are in it because a renamed parameter breaks a caller using named arguments.
+
+**Kotlin's own ABI validation was tried first and does not work here yet.** `abiValidation {}` registers
+`checkKotlinAbi` and `updateKotlinAbi` on an AGP library with the built-in Kotlin, and the dump task depends on no
+compilation and writes nothing: KGP 2.4.21 does not wire AGP 9.4.1's compilations into it. *Rejected:* the
+binary-compatibility-validator plugin, which brings a set of artifacts crippy's verified set does not hold, for what
+one unpublished module of a hundred lines does.
+
+**`:api-dump` is that module**, shared by the tests and never published. It brings kotlin-reflect 2.4.21, test-only,
+the one component the metadata gained; crippy's file holds 2.4.0.
+
+**The contract is not dumped**: its Java is the aidl tool's, and its wire is L2's to guard (L18).
+
+### L17 — An app needs Kotlin 2.1, and receives kotlin-stdlib 2.2.10
+*2026-10-23 · accepted; **flagged for veto** (below). Settles L3's open question.*
+
+**Every published module compiles its main sources at language and API version 2.2 and declares kotlin-stdlib
+2.2.10**, where the compiler's defaults were 2.4 and 2.4.21. What an app needs follows from the metadata: a compiler
+reads one version ahead, so 2.2 metadata wants Kotlin 2.1 or newer, where 2.4 wanted 2.3.
+
+**Measured with `kotlinc`, three ways**, compiling one consumer file that connects, opens a session and lists a
+folder:
+
+| Compiler | Against | Result |
+|---|---|---|
+| 2.1.21 | the client with the floor | compiles |
+| 2.0.21 | the client with the floor | refused: *metadata is 2.2.0, expected version is 2.0.0* |
+| 2.1.21 | the client before the floor | refused: *metadata is 2.4.0, expected version is 2.1.0* |
+
+**2.2 rather than 2.1**, because 2.1 compiles and the compiler warns that 2.1 is deprecated and its support will be
+removed; a floor that breaks at the next compiler bump is one the next bump has to move. 2.1 would have bought
+consumers on Kotlin 2.0, which kotlinx-coroutines 1.10.2, the client's `api` dependency, can serve but the 2.4
+compiler cannot be made to target without the warning.
+
+**kotlin-stdlib 2.2.10, the oldest the 2.2 API allows that the verified set already holds**, from AGP's toolchain:
+the metadata did not change. An app resolves the newer of its own and this. The three release-classpath lockfiles
+move to it, and OSV knows no advisory for 2.2.10 or 2.4.21. Main sources only: the tests use what they like.
+
+**Flagged for veto:**
+
+1. **Kotlin 2.1 as the floor**, which an app older than that meets as a metadata error at its first build.
+
+### L18 — The contract only grows, checked against the last release; and a consumer needs no R8 rules
+*2026-10-23 · accepted. Builds the two remaining release checks `ROADMAP.md` owed that need no release.*
+
+**`scripts/ci/append-only.py` is L2's rule as a check.** It reads the `.aidl` files at a git ref and in the tree:
+every interface's methods at the ref must be a prefix of today's, unchanged; every parcelable's fields likewise;
+every constant keeps its value, except `VERSION`, which may only rise; nothing is removed or changes kind, `oneway`
+included. CI runs it against the newest `v*` tag, and until there is one says there is nothing to compare with.
+Checked against the contract before L11, which it accepts, and against planted breaches — two methods swapped, a
+field retyped, a status renumbered, `VERSION` lowered, `oneway` dropped — each of which it names. `WireNamesTest`
+stays: it pins what an installed client has compiled in, and this pins what a release promised.
+
+**A consumer needs no R8 rules, measured.** A throwaway app with R8 on, built against this repository as a composite
+build, ran every request the client has against crippy on the A20: connecting, the consent screen, a write and its
+read back, listing, `stat`, a preview, a handoff read through `ContentResolver` and revoked, `measure`, `space`,
+`setTimes`, rename and delete. R8 renamed the contract's classes — `Entry`, the session proxy — and nothing broke,
+because the aidl tool reaches every `CREATOR` statically, a transaction carries its interface's name as a literal,
+and the client reads nothing by name. The same run is the composite-build substitution L1 describes, from outside
+this build.
+
+*Not settled here:* publishing (L1), which needs `com.systemhalted` verified on Maven Central and the signing of
+artifacts decided.
+
 ---
 
 ## Open questions
 
 - **How the artifacts are signed for Maven Central** (L1): the repository's signing key, or one of
   their own.
-- **The Kotlin floor for consumers** (L3).
+- ~~**The Kotlin floor for consumers** (L3).~~ **Kotlin 2.1 (L17).**
 - ~~**Where crippy D113's spike lives** — a read-only `SharedMemory` handoff and a Binder round trip on
   the four phones. It needs a service and a client in two processes, and either repository could hold
   it.~~ **Here, beside the device tests (L14).**

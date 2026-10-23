@@ -48,16 +48,19 @@ item 3.
 
 ## Before the first release
 
-- **The append-only gate** (L2): every interface's methods in the last released tag must be a prefix of
-  its methods now, checked in CI. Until a release exists there is nothing to compare against.
-- **An API dump check** for the Kotlin surface — the binary-compatibility validator, or Kotlin's own
-  ABI validation once AGP's built-in Kotlin exposes it.
-- **The Kotlin floor for consumers** (L3): `languageVersion`, `apiVersion`, `coreLibrariesVersion`. Since
-  L9 the default is an app on Kotlin 2.3 or newer, receiving stdlib 2.4.21.
+- ~~**The append-only gate** (L2): every interface's methods in the last released tag must be a prefix of
+  its methods now, checked in CI. Until a release exists there is nothing to compare against.~~ **Built (L18)**,
+  and live from the first `v*` tag.
+- ~~**An API dump check** for the Kotlin surface — the binary-compatibility validator, or Kotlin's own
+  ABI validation once AGP's built-in Kotlin exposes it.~~ **Built by kotlin-reflect (L16)**; Kotlin's own does not
+  see AGP's compilations yet.
+- ~~**The Kotlin floor for consumers** (L3): `languageVersion`, `apiVersion`, `coreLibrariesVersion`. Since
+  L9 the default is an app on Kotlin 2.3 or newer, receiving stdlib 2.4.21.~~ **Kotlin 2.1, stdlib 2.2.10 (L17).**
 - **Publishing** (L1): Maven Central, with `com.systemhalted` verified by a DNS record on
   `systemhalted.com`; the signing of artifacts; and reproducible AARs checked as crippy's release is
   (crippy D116).
-- **Consumer R8 rules**, if a `Parcelable` or anything reached by name needs them.
+- ~~**Consumer R8 rules**, if a `Parcelable` or anything reached by name needs them.~~ **None needed (L18)**,
+  measured with a minified app against crippy on the A20.
 
 ## When the repository is pushed
 

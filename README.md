@@ -34,6 +34,8 @@ when (val connected = Crippy.connect(context)) {
 }
 ```
 
+An app needs Kotlin 2.1 or newer (`AGENTS.md` L17), and R8 needs no rules for the library (L18).
+
 Every request is a `suspend` function that answers a `CrippyResult` and never throws. Before binding,
 the library checks that the crippy installed is signed by a key the app trusts: by default, the app's
 own key; otherwise one the app pins with `CrippyTrust.alsoTrusting`.
@@ -46,6 +48,8 @@ JDK 21 and the Android SDK (compileSdk 36). Then:
 lefthook install    # once per clone: signed, Conventional commits and the local gates
 ./gradlew ktlintCheck detekt allUnitTests koverVerify assemble
 ```
+
+A change to the public API fails a test until the dump in `api/` is rewritten with `-PupdateApi` (L16).
 
 The device tests run on a phone with `scripts/device/run-device-tests.sh <serial>`, and against the crippy installed
 there with its vault's passphrase in `CRIPPY_PASSPHRASE`; CI runs them on emulators, where crippy is not installed.
