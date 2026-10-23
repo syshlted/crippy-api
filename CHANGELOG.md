@@ -5,6 +5,15 @@ than restating it.
 
 ## Unreleased
 
+### The rename to encri — 2026-10-23
+
+**Completed (L19).** Every package, artifact, contract name and repository name spells encri, with the suite (encri
+D124). A client built before this cannot reach an encri built after it; nothing has been released, so nothing
+outside this repository's tests is one.
+
+**Known issues.** The history before this entry still carries the earlier name, and has been public since the first
+push; it is not rewritten (L19, flagged).
+
 ### Ready for a first release, but for publishing — 2026-10-23
 
 - **The public API is dumped and checked** in `api/encri-client.api` and `api/encri-registry.api`, through
