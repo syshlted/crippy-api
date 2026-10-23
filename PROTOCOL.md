@@ -94,7 +94,8 @@ deleted through it, and its parent reads as null.
   `after` for the following page; crippy caps the page size.
 - **`measure(folderId)`** — everything under a folder, counted: bytes, documents and folders.
 - **`openRead(id)`** — a read-only descriptor that seeks and may be mapped or handed to another app. It
-  fails at its next read when the session ends or the vault locks.
+  fails at its next read when the session ends or access for other apps is turned off. It goes on serving
+  across a lock, as an open file does: the lock stops new requests, not a document already open.
 - **`openWrite(id, listener)`** — the write end of a reliable pipe. Write the new content and close it
   cleanly to save it; close it with an error, or let your process die, and nothing is saved. The
   listener says whether it was saved, and if not, why. A write through a pipe cannot seek.
