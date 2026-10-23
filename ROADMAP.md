@@ -31,8 +31,10 @@ item 3.
    reading crippy's signing history itself rather than through `hasSigningCertificate`, which no unit test can
    reach. Five points are flagged for veto there.
 4. ~~**`PROTOCOL.md` grows with 2 and 3**~~ **Done 2026-10-23**: an author can integrate from it alone.
-5. **The registry** (crippy D114, D115): its format, a validator CI runs on every pull request, the
-   snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.
+5. ~~**The registry** (crippy D114, D115): its format, a validator CI runs on every pull request, the
+   snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.~~ **Built 2026-10-23 (L15)**, and
+   crippy reads it (crippy D122). Empty until an app has a release key. **The fingerprints file is not**: it lists
+   first-party keys that do not exist yet, inside a tag that waits for the first release.
 6. ~~**Device tests** for the client against a real crippy, which needs crippy's APK on the device or
    emulator; then `instrumented.yml`.~~ **Done 2026-10-23 (L13)**: a stand-in suite on three phones and the API 27
    emulator, the suite against crippy on the S9 and the A20, and `instrumented.yml` at API 27 and 36. Left: the

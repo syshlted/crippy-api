@@ -5,6 +5,16 @@ than restating it.
 
 ## Unreleased
 
+### The registry — 2026-10-23
+
+- `crippy-registry`: a JVM module with no dependencies, the format of `registry/<package>.app`, and a recognition per
+  app asking — reviewed, signed with another key, refused, or not listed (L15).
+- The jar carries the registry as a snapshot, which crippy builds in (crippy D122).
+- CI validates the registry on every pull request and scans the module's runtime classpath (L10, L15).
+- Five Kotlin JVM plugin components in the verification metadata, all in crippy's file.
+
+**Known issues.** Empty: no app has a release key to list. The fingerprints file waits for the same keys.
+
 ### The shared-memory spike — 2026-10-23
 
 - `SharedMemorySpikeTest` and `SpikeService`: a region handed out read-only, and every way of writing through it

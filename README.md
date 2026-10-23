@@ -13,6 +13,7 @@ with it at runtime and is never on the app's compile classpath.
 |---|---|---|
 | `crippy-client` | `com.systemhalted.crippy:crippy-client` | what an app integrates |
 | `crippy-contract` | `com.systemhalted.crippy:crippy-contract` | the `.aidl` files, which are the specification |
+| `crippy-registry` | `com.systemhalted.crippy:crippy-registry` | the apps crippy recognizes, which crippy builds in; see [`registry/`](registry/README.md) |
 
 ## Using it
 

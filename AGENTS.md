@@ -14,7 +14,7 @@ half of it:
 - **the client library**: binding to crippy, the check that the service bound to really is crippy,
   the session crippy hands out, and the consent screen a session needs (crippy D114);
 - **a written specification of the protocol**, `PROTOCOL.md`, for authors who do not read this file;
-- later, **the registry** of recognized apps that each crippy release builds in (crippy D114, D115).
+- **the registry** of recognized apps that each crippy release builds in (crippy D114, D115; L15).
 
 crippy's file manager, in `../crippy-file-manager`, is the first client and builds against this
 library as any other app would (crippy D112). Licensed Apache-2.0, which crippy D115 chose and still
@@ -260,6 +260,7 @@ receives is 2.4.21. Still the same three levers, and still not settled.
 |---|---|---|---|
 | `crippy-contract` | 90% | — | its hand-written types will be few, and their layout is the wire |
 | `crippy-client` | 90% | 85% | it will carry the check that the service is crippy, the code a reviewer reads first |
+| `crippy-registry` | 90% | 85% | it decides what crippy's consent screen says about an app, and which version it refuses (L15) |
 
 Plus **diff coverage >= 85% on changed lines** in every pull request, by crippy's
 `scripts/ci/diff-coverage.py` (crippy D5, B4). No module is exempt.
@@ -799,6 +800,49 @@ session ends, and the region handed out only after `setProtect(PROT_READ)` has s
 1. **The read path waits for a client that needs it**, though it is measured at about three times faster per block.
 
 *Rejected:* building the path on the ashmem result alone, when the phone most likely to use memfd has not run it.
+
+### L15 — The registry: a text file per app, a module with no dependencies, and a snapshot in the jar
+*2026-10-23 · accepted; **flagged for veto on two points** (below). Builds `ROADMAP.md` item 5, crippy D114's
+registry, in the place crippy D115 put it. crippy reads it as its D122.*
+
+**One file per app, `registry/<package>.app`**, of `key: value` lines: `package`, `developer`, `source`, one or more
+`certificate`, `rights`, `minimum-version` and an optional `refused-versions` — crippy D114's list of what an entry
+holds, with the developer added because the label claims *we know who wrote this*. `registry/README.md` is the format
+and what a reviewer checks.
+
+**Strict, because a mistake is a label on a stranger's app.** An unknown key is an error rather than ignored, so a
+misspelt `refused-versions` cannot refuse nothing; every key but `certificate` appears once; the file is named after
+its package, so a pull request cannot list one app under another's name; a certificate is 64 hex digits, read with or
+without `apksigner`'s colons; `rights` is from the contract's five and always includes `read`; version codes are
+positive. A registry that lists a package twice is refused whole.
+
+**`crippy-registry`, the pure-JVM module L1 foresaw**, with no dependency but the standard library. *Rejected:* TOML or
+JSON, which would bring a parser into crippy's verified set and into the jar crippy builds in, for a format of seven
+keys a reviewer reads in a diff. It answers a recognition per app asking: **reviewed**, with the rights it asked for
+beyond review named; **signed with another key**, the package listed and the certificate not — a lookalike using the
+name, or a build somebody signed themselves; **refused**, a version below the floor or listed as refused; or **not
+listed**.
+
+**The snapshot is a resource in the module's jar**, every entry in name order, so the registry a crippy recognizes is
+the one in the crippy-api commit it was built from (crippy D114, D116). crippy depends on the artifact as it does on
+the contract, so no copy is kept in step by hand.
+
+**CI validates it on every pull request**: a unit test reads the repository's own `registry/` and checks it is the
+snapshot the jar carries, and `:crippy-registry:validateRegistry` says each entry back for the author. The module's
+runtime classpath is locked and scanned with the others (L10). Coverage gates 90% line and 85% branch, which caught
+that nothing had read a non-empty snapshot while the registry was empty.
+
+**It is empty.** No app has a release key to list; crippy's file manager is the first expected. The fingerprints file
+crippy D115 asks for — every first-party app's package, certificate and code-transparency key, inside a GPG-signed
+tag — waits on the same key, and on a first release to tag.
+
+**Flagged for veto:**
+
+1. **A plain-text format of our own** rather than a standard one, for the reason above.
+2. **A version the registry refuses is not let in at all** (crippy D122), where everything else it says is words.
+
+*Rejected:* listing first-party apps by their shared key rather than one by one — crippy D115 has crippy and the file
+manager signed alike, and an entry per app is what lets one be refused without the other.
 
 ---
 
