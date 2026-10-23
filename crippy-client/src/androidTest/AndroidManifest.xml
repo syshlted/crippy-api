@@ -22,6 +22,15 @@
             android:process=":older" />
 
         <!--
+            crippy D113's spike (L14): a region of shared memory handed out read-only, and a proxy
+            descriptor over the same bytes, from a process of their own.
+        -->
+        <service
+            android:name="com.systemhalted.crippy.client.device.spike.SpikeService"
+            android:exported="false"
+            android:process=":spike" />
+
+        <!--
             Starts one of crippy's screens with startActivityForResult, which crippy's consent screen
             requires so it can name the app from the system rather than from the request (crippy D114).
         -->
