@@ -51,6 +51,18 @@ jobs:
       - name: Validate the registry
         run: scripts/hooks/gradle-task :crippy-registry:validateRegistry
 
+      # L2: once a release has shipped, the contract only grows — methods and fields appended, constants
+      # kept, nothing moved. Compared with the newest v* tag; until there is one the contract may still
+      # change, and the step says so rather than passing silently.
+      - name: Append-only contract (L2)
+        run: |
+          base=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          if [ -z "$base" ]; then
+            echo "::notice::no release tag yet, so nothing for the contract to be a prefix of"
+          else
+            python3 scripts/ci/append-only.py "$base"
+          fi
+
       # Both AARs, release included. The unit tests compile the debug variant only, and the release
       # AAR is the artifact a client links.
       - name: Build the AARs
