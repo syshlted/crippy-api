@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":api-dump"))
 
     // A real Binder, Parcel and PackageManager off a device, as the contract's tests have (L8). JUnit 4
     // runs them under the vintage engine beside the JUnit 5 cases, in one task.
@@ -61,6 +62,10 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     // See crippy-contract's build: Robolectric at SDK 36 on JDK 21 (L8).
     jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
+    // The API dump (L16): compared on every run, and rewritten with -PupdateApi.
+    inputs.files(fileTree("api")).withPropertyName("apiDump")
+    systemProperty("crippy.api.dump", file("api/crippy-client.api").absolutePath)
+    systemProperty("crippy.api.update", providers.gradleProperty("updateApi").isPresent.toString())
 }
 
 android {

@@ -23,6 +23,7 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(project(":api-dump"))
 }
 
 // The snapshot: every registry/*.app, in name order, in one resource. It is what a crippy built against
@@ -54,6 +55,10 @@ tasks.withType<Test>().configureEach {
     // The registry this repository holds, which a test validates on every run: that is the check CI makes
     // of every pull request that adds an app (L15).
     systemProperty("crippy.registry.dir", rootProject.file("registry").absolutePath)
+    // The API dump (L16): compared on every run, and rewritten with -PupdateApi.
+    inputs.files(fileTree("api")).withPropertyName("apiDump")
+    systemProperty("crippy.api.dump", file("api/crippy-registry.api").absolutePath)
+    systemProperty("crippy.api.update", providers.gradleProperty("updateApi").isPresent.toString())
 }
 
 // For a pull request's author: every entry checked, and each one said back.

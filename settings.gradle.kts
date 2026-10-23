@@ -43,3 +43,6 @@ rootProject.name = "crippy-api"
 include(":crippy-contract")
 include(":crippy-client")
 include(":crippy-registry")
+
+// Not published: the API dumper the published modules' tests share (L16).
+include(":api-dump")
