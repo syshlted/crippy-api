@@ -42,3 +42,4 @@ rootProject.name = "crippy-api"
 
 include(":crippy-contract")
 include(":crippy-client")
+include(":crippy-registry")

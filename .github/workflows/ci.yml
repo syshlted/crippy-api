@@ -46,6 +46,11 @@ jobs:
       - name: JVM unit tests (all modules)
         run: scripts/hooks/gradle-task allUnitTests
 
+      # L15: the registry's rules, said back entry by entry for a pull request that adds an app. The unit
+      # tests above already refuse an invalid registry; this is the line an author reads.
+      - name: Validate the registry
+        run: scripts/hooks/gradle-task :crippy-registry:validateRegistry
+
       # Both AARs, release included. The unit tests compile the debug variant only, and the release
       # AAR is the artifact a client links.
       - name: Build the AARs

@@ -42,11 +42,13 @@ jobs:
           echo "${OSV_SCANNER_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum -c -
           chmod +x "$RUNNER_TEMP/osv-scanner"
 
-      - name: No known advisory in either release runtime classpath
+      # The registry's is what crippy receives from it (L15), beside what an app receives from the other two.
+      - name: No known advisory in any release runtime classpath
         run: |
           "$RUNNER_TEMP/osv-scanner" scan source \
             -L crippy-client/gradle.lockfile \
-            -L crippy-contract/gradle.lockfile
+            -L crippy-contract/gradle.lockfile \
+            -L crippy-registry/gradle.lockfile
 
   # The build's tooling — every artifact gradle/verification-metadata.xml pins — reported to the
   # Security tab rather than failing the job. An advisory published this week is not something a pull
