@@ -5,7 +5,7 @@ than restating it.
 
 ## Unreleased
 
-### commit-policy checks a force push — 2026-10-23
+### The first push, and commit-policy checks a force push — 2026-10-23
 
 - **Bug fixed.** A push whose `before` is not in the runner's clone made `commit-policy` check no commit and pass.
   A force push is that push: its `before` is the commit it replaced, which the checkout does not fetch. `git
@@ -16,6 +16,9 @@ than restating it.
 - Measured with the workflow's own scripts, in a clone holding only what the runner fetches: a force push checks
   all 14 commits, a new branch 14, a push from three commits back 3, a pull request two commits ahead 2. The old
   scripts checked 0 on the force push and passed.
+- **Pushed**, by a force push leased on GitHub's `c3b4c92`, which it replaced (L6). On GitHub the run logged
+  that `c3b4c92` was not in its clone, checked all 15 commits, and GitHub reports every one signed. `ci`,
+  `codeql` for both languages and `dependencies` passed, with no code-scanning alert.
 
 ### The client — 2026-10-23
 

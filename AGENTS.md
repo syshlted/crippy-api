@@ -30,9 +30,9 @@ the client's side of it.
 first surface is written (L11)**: a service, a session, three listeners and the parcelables they carry. **The
 client is written (L12)**: connecting, trusting crippy, opening a session, every request the contract has, and the
 intents for the consent and unlock screens. crippy implements the service as its D120. Neither has run against
-the other on a phone yet. **The remote is `git@syshlt-github:syshlted/crippy-api.git` and nothing has been pushed
-to it**, so GitHub Actions has never run; until the first push, the hooks and a local `./gradlew` are
-the only checks.
+the other on a phone yet. **Pushed 2026-10-23** to `git@syshlt-github:syshlted/crippy-api.git`, replacing
+GitHub's initial commit (L6). The first runs of `ci`, `commit-policy`, `codeql` and `dependencies` all passed, with
+no code-scanning alert.
 
 ## Relationship to crippy
 
@@ -328,7 +328,9 @@ names and never the root's, so nothing that will depend on this library sees the
 
 **GitHub made a commit of its own when the repository was created**: `c3b4c92`, holding an Apache-2.0
 `LICENSE` that differs from ours by one leading blank line. It shares no history with `master`, so the
-first push either replaces it or merges it (`ROADMAP.md`).
+first push either replaces it or merges it (`ROADMAP.md`). **Replaced, at the user's direction, by a force push
+on 2026-10-23**, leased on `c3b4c92` so that nothing else could be overwritten. That push found a hole in
+`commit-policy`, fixed before it went (`CHANGELOG.md`).
 
 ### L7 — Code scanning is CodeQL, over the code and over the workflows, with secret scanning on
 *2026-10-22 · accepted; **flagged for veto on the query suite and on leaving dependency scanning

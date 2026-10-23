@@ -52,20 +52,19 @@ item 3.
 
 ## When the repository is pushed
 
-- **GitHub's initial commit**, `c3b4c92`, shares no history with `master` (L6). Replacing it with a
-  force push loses only a `LICENSE` identical to ours; merging it with `--allow-unrelated-histories`
-  keeps a commit signed by GitHub rather than the author, which `commit-policy` never checks because it
-  is already on the remote. **Recommended: replace it**, before anything else lands on GitHub. The
-  user decides.
-- **Branch protection on `master`**: signed commits, a review, `ci`, `commit-policy`, both `codeql`
-  jobs and the `dependencies` job for what ships required, and code scanning merge protection, so a
-  pull request that adds a high or critical alert — from CodeQL or from the build-tooling scan — cannot
-  merge (L7, L10).
+- ~~**GitHub's initial commit**, `c3b4c92`, shares no history with `master` (L6).~~ **Replaced by a force
+  push, 2026-10-23.**
+- **Branch protection on `master`**, **refusing a force push again**, which was turned off for the first
+  push: signed commits, a review, `ci`, `commit-policy`, both `codeql` jobs and the `dependencies` job for
+  what ships required, and code scanning merge protection, so a pull request that adds a high or critical
+  alert — from CodeQL or from the build-tooling scan — cannot merge (L7, L10).
 - **Merge commits or rebases only**, never a squash (`AGENTS.md`, *Repo conventions*).
 - **Actions must be pinned to a full commit SHA**, a repository setting that is off: every workflow
   already pins (crippy D7), and the setting makes an unpinned one fail rather than run.
-- **The first `codeql` run on `master` is the baseline** a pull request's results are compared with;
-  check that both languages report, and that `java-kotlin` lists the aidl tool's Java (L7).
+- **The first `codeql` run on `master` is the baseline** a pull request's results are compared with.
+  ~~Check that both languages report~~ — **they do, from 2026-10-23's push, with no alert**; `java-kotlin`
+  scanned all 9 of the client's main Kotlin files. **Still to check:** that it lists the aidl tool's Java
+  (L7). The run log counts only Kotlin, so the answer is on the repository's CodeQL status page.
 
 ## Bug queue
 
