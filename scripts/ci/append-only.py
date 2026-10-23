@@ -23,7 +23,7 @@ import subprocess
 import sys
 import tempfile
 
-AIDL_DIR = "crippy-contract/src/main/aidl"
+AIDL_DIR = "encri-contract/src/main/aidl"
 
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 DECLARATION = re.compile(r"\b(oneway\s+)?(interface|parcelable)\s+(\w+)\s*\{(.*)\}", re.S)

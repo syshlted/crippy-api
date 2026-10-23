@@ -1,0 +1,267 @@
+public sealed interface com.systemhalted.encri.client.Availability
+public data object com.systemhalted.encri.client.Availability.NotInstalled : com.systemhalted.encri.client.Availability
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.Availability.NotTrusted : com.systemhalted.encri.client.Availability
+  constructor(certificateSha256: kotlin.String)
+  public fun component1(): kotlin.String
+  public fun copy(certificateSha256: kotlin.String = …): com.systemhalted.encri.client.Availability.NotTrusted
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val certificateSha256: kotlin.String
+public data object com.systemhalted.encri.client.Availability.Ready : com.systemhalted.encri.client.Availability
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public sealed interface com.systemhalted.encri.client.ConnectResult
+public data class com.systemhalted.encri.client.ConnectResult.Connected : com.systemhalted.encri.client.ConnectResult
+  constructor(connection: com.systemhalted.encri.client.EncriConnection)
+  public fun component1(): com.systemhalted.encri.client.EncriConnection
+  public fun copy(connection: com.systemhalted.encri.client.EncriConnection = …): com.systemhalted.encri.client.ConnectResult.Connected
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val connection: com.systemhalted.encri.client.EncriConnection
+public data object com.systemhalted.encri.client.ConnectResult.NotInstalled : com.systemhalted.encri.client.ConnectResult
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.ConnectResult.NotTrusted : com.systemhalted.encri.client.ConnectResult
+  constructor(certificateSha256: kotlin.String)
+  public fun component1(): kotlin.String
+  public fun copy(certificateSha256: kotlin.String = …): com.systemhalted.encri.client.ConnectResult.NotTrusted
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val certificateSha256: kotlin.String
+public data class com.systemhalted.encri.client.ConnectResult.TooOld : com.systemhalted.encri.client.ConnectResult
+  constructor(serviceVersion: kotlin.Int)
+  public fun component1(): kotlin.Int
+  public fun copy(serviceVersion: kotlin.Int = …): com.systemhalted.encri.client.ConnectResult.TooOld
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val serviceVersion: kotlin.Int
+public data class com.systemhalted.encri.client.ConnectResult.Unavailable : com.systemhalted.encri.client.ConnectResult
+  constructor(reason: kotlin.String)
+  public fun component1(): kotlin.String
+  public fun copy(reason: kotlin.String = …): com.systemhalted.encri.client.ConnectResult.Unavailable
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val reason: kotlin.String
+public object com.systemhalted.encri.client.Encri
+  public fun authorizationIntent(rights: kotlin.collections.Set<com.systemhalted.encri.client.Right>): android.content.Intent
+  public fun authorizationResult(resultCode: kotlin.Int, data: android.content.Intent?): kotlin.collections.Set<com.systemhalted.encri.client.Right>?
+  public fun availability(context: android.content.Context, trust: com.systemhalted.encri.client.EncriTrust = …): com.systemhalted.encri.client.Availability
+  public fun unlockIntent(): android.content.Intent
+  public suspend fun connect(context: android.content.Context, trust: com.systemhalted.encri.client.EncriTrust = …): com.systemhalted.encri.client.ConnectResult
+  public val PACKAGE: kotlin.String
+public class com.systemhalted.encri.client.EncriConnection : kotlin.AutoCloseable /* = java.lang.AutoCloseable */
+  public fun close(): kotlin.Unit
+  public suspend fun openSession(): com.systemhalted.encri.client.SessionOutcome
+  public val contractVersion: kotlin.Int
+  public val isConnected: kotlin.Boolean
+public data class com.systemhalted.encri.client.EncriDocument
+  constructor(id: kotlin.String, parentId: kotlin.String?, name: kotlin.String, mimeType: kotlin.String, isFolder: kotlin.Boolean, sizeBytes: kotlin.Long, createdMillis: kotlin.Long, modifiedMillis: kotlin.Long, childCount: kotlin.Int?, thumbnailable: kotlin.Boolean)
+  public fun component1(): kotlin.String
+  public fun component10(): kotlin.Boolean
+  public fun component2(): kotlin.String?
+  public fun component3(): kotlin.String
+  public fun component4(): kotlin.String
+  public fun component5(): kotlin.Boolean
+  public fun component6(): kotlin.Long
+  public fun component7(): kotlin.Long
+  public fun component8(): kotlin.Long
+  public fun component9(): kotlin.Int?
+  public fun copy(id: kotlin.String = …, parentId: kotlin.String? = …, name: kotlin.String = …, mimeType: kotlin.String = …, isFolder: kotlin.Boolean = …, sizeBytes: kotlin.Long = …, createdMillis: kotlin.Long = …, modifiedMillis: kotlin.Long = …, childCount: kotlin.Int? = …, thumbnailable: kotlin.Boolean = …): com.systemhalted.encri.client.EncriDocument
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val childCount: kotlin.Int?
+  public val createdMillis: kotlin.Long
+  public val id: kotlin.String
+  public val isFolder: kotlin.Boolean
+  public val mimeType: kotlin.String
+  public val modifiedMillis: kotlin.Long
+  public val name: kotlin.String
+  public val parentId: kotlin.String?
+  public val sizeBytes: kotlin.Long
+  public val thumbnailable: kotlin.Boolean
+public data class com.systemhalted.encri.client.EncriGrant
+  constructor(rights: kotlin.collections.Set<com.systemhalted.encri.client.Right>, scope: com.systemhalted.encri.client.EncriDocument)
+  public fun component1(): kotlin.collections.Set<com.systemhalted.encri.client.Right>
+  public fun component2(): com.systemhalted.encri.client.EncriDocument
+  public fun copy(rights: kotlin.collections.Set<com.systemhalted.encri.client.Right> = …, scope: com.systemhalted.encri.client.EncriDocument = …): com.systemhalted.encri.client.EncriGrant
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val rights: kotlin.collections.Set<com.systemhalted.encri.client.Right>
+  public val scope: com.systemhalted.encri.client.EncriDocument
+public data class com.systemhalted.encri.client.EncriPage
+  constructor(documents: kotlin.collections.List<com.systemhalted.encri.client.EncriDocument>, next: kotlin.String?)
+  public fun component1(): kotlin.collections.List<com.systemhalted.encri.client.EncriDocument>
+  public fun component2(): kotlin.String?
+  public fun copy(documents: kotlin.collections.List<com.systemhalted.encri.client.EncriDocument> = …, next: kotlin.String? = …): com.systemhalted.encri.client.EncriPage
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val documents: kotlin.collections.List<com.systemhalted.encri.client.EncriDocument>
+  public val next: kotlin.String?
+public sealed interface com.systemhalted.encri.client.EncriResult<out T>
+public data class com.systemhalted.encri.client.EncriResult.Failed : com.systemhalted.encri.client.EncriResult<kotlin.Nothing>
+  constructor(failure: com.systemhalted.encri.client.Failure, message: kotlin.String?)
+  public fun component1(): com.systemhalted.encri.client.Failure
+  public fun component2(): kotlin.String?
+  public fun copy(failure: com.systemhalted.encri.client.Failure = …, message: kotlin.String? = …): com.systemhalted.encri.client.EncriResult.Failed
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val failure: com.systemhalted.encri.client.Failure
+  public val message: kotlin.String?
+public data class com.systemhalted.encri.client.EncriResult.Ok<out T> : com.systemhalted.encri.client.EncriResult<T>
+  constructor(value: T)
+  public fun component1(): T
+  public fun copy(value: T = …): com.systemhalted.encri.client.EncriResult.Ok<T>
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val value: T
+public class com.systemhalted.encri.client.EncriSession : kotlin.AutoCloseable /* = java.lang.AutoCloseable */
+  public fun close(): kotlin.Unit
+  public suspend fun createFile(parentId: kotlin.String, name: kotlin.String, mimeType: kotlin.String, onNameTaken: com.systemhalted.encri.client.NameConflict = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun createFolder(parentId: kotlin.String, name: kotlin.String, onNameTaken: com.systemhalted.encri.client.NameConflict = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun delete(documentId: kotlin.String): com.systemhalted.encri.client.EncriResult<kotlin.Unit>
+  public suspend fun handOff(documentIds: kotlin.collections.List<kotlin.String>): com.systemhalted.encri.client.EncriResult<kotlin.collections.List<android.net.Uri>>
+  public suspend fun list(folderId: kotlin.String): com.systemhalted.encri.client.EncriResult<kotlin.collections.List<com.systemhalted.encri.client.EncriDocument>>
+  public suspend fun listPage(folderId: kotlin.String, after: kotlin.String? = …, limit: kotlin.Int = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriPage>
+  public suspend fun lock(): com.systemhalted.encri.client.EncriResult<kotlin.Unit>
+  public suspend fun measure(folderId: kotlin.String): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.FolderTotals>
+  public suspend fun move(documentId: kotlin.String, parentId: kotlin.String, onNameTaken: com.systemhalted.encri.client.NameConflict = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun openRead(documentId: kotlin.String): com.systemhalted.encri.client.EncriResult<android.os.ParcelFileDescriptor>
+  public suspend fun refreshGrant(): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriGrant>
+  public suspend fun rename(documentId: kotlin.String, name: kotlin.String, onNameTaken: com.systemhalted.encri.client.NameConflict = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun revokeHandoffs(uris: kotlin.collections.List<android.net.Uri>): com.systemhalted.encri.client.EncriResult<kotlin.Unit>
+  public suspend fun setTimes(documentId: kotlin.String, createdMillis: kotlin.Long? = …, modifiedMillis: kotlin.Long? = …): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun space(): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.VaultSpace>
+  public suspend fun stat(documentId: kotlin.String): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public suspend fun thumbnail(documentId: kotlin.String, width: kotlin.Int, height: kotlin.Int): com.systemhalted.encri.client.EncriResult<kotlin.ByteArray>
+  public suspend fun write(documentId: kotlin.String, writer: suspend (java.io.OutputStream) -> kotlin.Unit): com.systemhalted.encri.client.EncriResult<com.systemhalted.encri.client.EncriDocument>
+  public val events: kotlinx.coroutines.flow.SharedFlow<com.systemhalted.encri.client.VaultEvent>
+  public val grant: com.systemhalted.encri.client.EncriGrant
+  public val isOpen: kotlin.Boolean
+public class com.systemhalted.encri.client.EncriTrust
+  public val certificates: kotlin.collections.Set<kotlin.String>
+  public val sameSigner: kotlin.Boolean
+public companion object com.systemhalted.encri.client.EncriTrust.Companion
+  public fun alsoTrusting(vararg certificates: kotlin.Array<out kotlin.String>, sameSigner: kotlin.Boolean = …): com.systemhalted.encri.client.EncriTrust
+  public val DEFAULT: com.systemhalted.encri.client.EncriTrust
+  public val RELEASE_CERTIFICATES: kotlin.collections.Set<kotlin.String>
+public enum class com.systemhalted.encri.client.Failure
+  entry LOCKED
+  entry NOT_AUTHORIZED
+  entry ACCESS_OFF
+  entry NOT_FOUND
+  entry NAME_TAKEN
+  entry INVALID
+  entry NO_SPACE
+  entry UNSUPPORTED
+  entry FAILED
+  entry ENDED
+  entry CANCELLED
+  entry DISCONNECTED
+  public fun valueOf(value: kotlin.String): com.systemhalted.encri.client.Failure
+  public fun values(): kotlin.Array<com.systemhalted.encri.client.Failure>
+  public val entries: kotlin.enums.EnumEntries<com.systemhalted.encri.client.Failure>
+public data class com.systemhalted.encri.client.FolderTotals
+  constructor(bytes: kotlin.Long, documents: kotlin.Int, folders: kotlin.Int)
+  public fun component1(): kotlin.Long
+  public fun component2(): kotlin.Int
+  public fun component3(): kotlin.Int
+  public fun copy(bytes: kotlin.Long = …, documents: kotlin.Int = …, folders: kotlin.Int = …): com.systemhalted.encri.client.FolderTotals
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val bytes: kotlin.Long
+  public val documents: kotlin.Int
+  public val folders: kotlin.Int
+public enum class com.systemhalted.encri.client.NameConflict
+  entry REFUSE
+  entry PICK_FREE_NAME
+  public fun valueOf(value: kotlin.String): com.systemhalted.encri.client.NameConflict
+  public fun values(): kotlin.Array<com.systemhalted.encri.client.NameConflict>
+  public val entries: kotlin.enums.EnumEntries<com.systemhalted.encri.client.NameConflict>
+public enum class com.systemhalted.encri.client.Right
+  entry READ
+  entry WRITE
+  entry CREATE
+  entry DELETE
+  entry MOVE
+  public fun valueOf(value: kotlin.String): com.systemhalted.encri.client.Right
+  public fun values(): kotlin.Array<com.systemhalted.encri.client.Right>
+  public val entries: kotlin.enums.EnumEntries<com.systemhalted.encri.client.Right>
+public sealed interface com.systemhalted.encri.client.SessionOutcome
+public data object com.systemhalted.encri.client.SessionOutcome.AccessOff : com.systemhalted.encri.client.SessionOutcome
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.SessionOutcome.Failed : com.systemhalted.encri.client.SessionOutcome
+  constructor(failure: com.systemhalted.encri.client.Failure, message: kotlin.String?)
+  public fun component1(): com.systemhalted.encri.client.Failure
+  public fun component2(): kotlin.String?
+  public fun copy(failure: com.systemhalted.encri.client.Failure = …, message: kotlin.String? = …): com.systemhalted.encri.client.SessionOutcome.Failed
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val failure: com.systemhalted.encri.client.Failure
+  public val message: kotlin.String?
+public data object com.systemhalted.encri.client.SessionOutcome.Locked : com.systemhalted.encri.client.SessionOutcome
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data object com.systemhalted.encri.client.SessionOutcome.NotAuthorized : com.systemhalted.encri.client.SessionOutcome
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.SessionOutcome.Opened : com.systemhalted.encri.client.SessionOutcome
+  constructor(session: com.systemhalted.encri.client.EncriSession)
+  public fun component1(): com.systemhalted.encri.client.EncriSession
+  public fun copy(session: com.systemhalted.encri.client.EncriSession = …): com.systemhalted.encri.client.SessionOutcome.Opened
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val session: com.systemhalted.encri.client.EncriSession
+public sealed interface com.systemhalted.encri.client.VaultEvent
+public data object com.systemhalted.encri.client.VaultEvent.Ended : com.systemhalted.encri.client.VaultEvent
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.VaultEvent.FolderChanged : com.systemhalted.encri.client.VaultEvent
+  constructor(folderId: kotlin.String)
+  public fun component1(): kotlin.String
+  public fun copy(folderId: kotlin.String = …): com.systemhalted.encri.client.VaultEvent.FolderChanged
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val folderId: kotlin.String
+public data object com.systemhalted.encri.client.VaultEvent.Locked : com.systemhalted.encri.client.VaultEvent
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data object com.systemhalted.encri.client.VaultEvent.Unlocked : com.systemhalted.encri.client.VaultEvent
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.client.VaultSpace
+  constructor(usableBytes: kotlin.Long, totalBytes: kotlin.Long)
+  public fun component1(): kotlin.Long
+  public fun component2(): kotlin.Long
+  public fun copy(usableBytes: kotlin.Long = …, totalBytes: kotlin.Long = …): com.systemhalted.encri.client.VaultSpace
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val totalBytes: kotlin.Long
+  public val usableBytes: kotlin.Long
+top-level public fun com.systemhalted.encri.client.EncriResult<T>.valueOrNull(): T?

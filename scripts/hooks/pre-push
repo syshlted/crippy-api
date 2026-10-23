@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# crippy-api — refuse to push commits lacking a good signature.
+# encri-api — refuse to push commits lacking a good signature.
 #
 # This is the real enforcement point: unlike pre-commit, it can inspect the
 # actual signature on every commit in the push range, so it catches commits

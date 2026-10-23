@@ -20,7 +20,7 @@ jobs:
       # to diff against, and a shallow clone does not have it.
       #
       # Every action is pinned to a full commit SHA with its release in a trailing comment, and
-      # to the same SHAs crippy pins (crippy D7). A tag is a mutable pointer, and whoever can move
+      # to the same SHAs encri pins (encri D7). A tag is a mutable pointer, and whoever can move
       # one can run code in a job holding this repository's token.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -42,14 +42,14 @@ jobs:
         run: scripts/hooks/gradle-task detekt
 
       # NOT testDebugUnitTest: Gradle runs a name-matched task in whichever projects have it
-      # without complaining that the others lack it (crippy D11).
+      # without complaining that the others lack it (encri D11).
       - name: JVM unit tests (all modules)
         run: scripts/hooks/gradle-task allUnitTests
 
       # L15: the registry's rules, said back entry by entry for a pull request that adds an app. The unit
       # tests above already refuse an invalid registry; this is the line an author reads.
       - name: Validate the registry
-        run: scripts/hooks/gradle-task :crippy-registry:validateRegistry
+        run: scripts/hooks/gradle-task :encri-registry:validateRegistry
 
       # L2: once a release has shipped, the contract only grows — methods and fields appended, constants
       # kept, nothing moved. Compared with the newest v* tag; until there is one the contract may still
@@ -71,7 +71,7 @@ jobs:
       - name: Coverage (Kover, per-module thresholds)
         run: scripts/hooks/gradle-task koverVerify
 
-      # L4, after crippy D5: the per-module gates stop the average sliding, and this stops a change
+      # L4, after encri D5: the per-module gates stop the average sliding, and this stops a change
       # arriving uncovered while a 90%-covered module absorbs it. Pull requests only — a push has
       # no base to diff against that means anything.
       - name: Diff coverage (L4, >= 85% on changed lines)

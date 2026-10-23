@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail a pull request whose changed lines are not covered (AGENTS.md L4).
 
-crippy's script (crippy D5, roadmap B4), carried across unchanged in what it measures. The
+encri's script (encri D5, roadmap B4), carried across unchanged in what it measures. The
 per-module gates stop a module's average sliding; this stops a change *arriving* uncovered while
 the average absorbs it, which is the failure a 90%-covered module hides best.
 
@@ -31,7 +31,7 @@ from pathlib import Path
 # must not be counted as uncovered. Tests are the point: they are what covers everything else.
 EXCLUDED_SOURCE_SETS = ("/src/test/", "/src/androidTest/", "/src/testFixtures/")
 
-# Every module here has a gate (L4), so none is exempt. crippy exempts `:app`; this repository has
+# Every module here has a gate (L4), so none is exempt. encri exempts `:app`; this repository has
 # no module like it.
 EXCLUDED_MODULES: tuple[str, ...] = ()
 
@@ -78,7 +78,7 @@ def executable_lines(reports: list[Path]) -> dict[str, dict[int, bool]]:
     Kover's XML gives a package name and a bare file name, not a repo path, so the key here is the
     *suffix* a repo path has to end with. Merging several reports by union is deliberate: a line
     covered by any module's suite is covered, which matters for
-    `crippy-contract`, whose hand-written types the client's tests will exercise.
+    `encri-contract`, whose hand-written types the client's tests will exercise.
     """
     lines: dict[str, dict[int, bool]] = {}
     for report in reports:

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# crippy-api — enforce Conventional Commits.
+# encri-api — enforce Conventional Commits.
 #
 # CI re-checks this authoritatively; this hook just fails fast locally.
 # Bypass: git commit --no-verify   (or LEFTHOOK=0)
@@ -26,7 +26,7 @@ commit-msg: subject is not a Conventional Commit.
   types:    ${types//|/, }
 
   examples:
-    feat(client): verify crippy's signing certificate before binding
+    feat(client): verify encri's signing certificate before binding
     fix(contract)!: page directory listings rather than returning them whole
     docs: record the transaction-code rule in AGENTS.md
 

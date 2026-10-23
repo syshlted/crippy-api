@@ -1,4 +1,4 @@
-# Lefthook — local git hook runner. The same hooks crippy runs (crippy D7, D11).
+# Lefthook — local git hook runner. The same hooks encri runs (encri D7, D11).
 #
 #   bootstrap a clone:  lefthook install
 #   bypass everything:  LEFTHOOK=0 git commit ...
@@ -39,7 +39,7 @@ pre-push:
       use_stdin: true
       run: scripts/hooks/pre-push {1}
 
-    # allUnitTests rather than testDebugUnitTest, for crippy D11's reason: a name-matched
+    # allUnitTests rather than testDebugUnitTest, for encri D11's reason: a name-matched
     # task silently skips every module that lacks it. Mirrors ci.yml.
     - name: unit-tests
       run: scripts/hooks/gradle-task allUnitTests

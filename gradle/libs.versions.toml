@@ -1,7 +1,7 @@
 # Single source of truth for dependency versions.
 #
-# The toolchain is crippy's, version for version (AGENTS.md L3): crippy compiles its service against
-# crippy-contract, and the file manager against crippy-client, so a bump is made in all three
+# The toolchain is encri's, version for version (AGENTS.md L3): encri compiles its service against
+# encri-contract, and the file manager against encri-client, so a bump is made in all three
 # repositories together or not at all. Nothing here is the contract's version, which is a constant in
 # the .aidl file it describes (L2).
 
@@ -20,11 +20,11 @@ junit = "5.14.4"
 robolectric = "4.17"
 # The client's API is suspend functions and a SharedFlow (L12), so an app receives this through `api`.
 coroutines = "1.10.2"
-# The device tests (L13): crippy's versions, so every artifact they bring is one crippy's build already verifies.
+# The device tests (L13): encri's versions, so every artifact they bring is one encri's build already verifies.
 androidxTestRunner = "1.7.0"
 androidxTestJunit = "1.3.0"
 
-# minSdk 27, crippy's floor (crippy D14) and therefore the lowest level a client can ever find crippy
+# minSdk 27, encri's floor (encri D14) and therefore the lowest level a client can ever find encri
 # on. L1 records why a lower floor was not taken.
 minSdk = "27"
 compileSdk = "36"

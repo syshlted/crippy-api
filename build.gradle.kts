@@ -30,7 +30,7 @@ val ktlintToolVersion = libs.versions.ktlint.get()
 val kotlinFloorStdlib = "2.2.10"
 val javaToolchain = 21
 
-// Aggregate unit-test task, for crippy D11's reason: CI and the pre-push hook must not call
+// Aggregate unit-test task, for encri D11's reason: CI and the pre-push hook must not call
 // testDebugUnitTest directly. Gradle runs a name-matched task in whichever projects have it without
 // complaining that the others lack it, so the first pure-JVM module here — the registry's validator,
 // most likely — would be skipped by a bare testDebugUnitTest and the run would still report green.
@@ -43,7 +43,7 @@ val allUnitTests =
 allprojects {
     // The coordinates a composite build substitutes on (L1). The file manager declares these and,
     // while both repositories are changing, includes this build instead of resolving them.
-    group = "com.systemhalted.crippy"
+    group = "com.systemhalted.encri"
     version = "0.1.0-SNAPSHOT"
 
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -75,7 +75,7 @@ allprojects {
 subprojects {
     apply(plugin = "org.jetbrains.kotlinx.kover")
 
-    // Real JVM default methods and no $DefaultImpls bridge, as in crippy (D11): the bridge is dead
+    // Real JVM default methods and no $DefaultImpls bridge, as in encri (D11): the bridge is dead
     // code no test can reach, and it counts against the coverage gates.
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {

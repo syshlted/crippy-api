@@ -1,6 +1,6 @@
-// crippy-api — module layout per AGENTS.md L1.
+// encri-api — module layout per AGENTS.md L1.
 //
-// Two artifacts, because crippy D115 publishes two: the contract, which crippy's service and every
+// Two artifacts, because encri D115 publishes two: the contract, which encri's service and every
 // client compile against, and the client library an app integrates. Both are Android libraries,
 // because a Binder interface is android.* by definition.
 
@@ -19,7 +19,7 @@ pluginManagement {
 }
 
 // Resolves the JDK 21 toolchain on machines where it is not in a location Gradle auto-detects,
-// for crippy's reason: a newer JDK on PATH silently building against an AGP that does not support it.
+// for encri's reason: a newer JDK on PATH silently building against an AGP that does not support it.
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
@@ -38,11 +38,11 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "crippy-api"
+rootProject.name = "encri-api"
 
-include(":crippy-contract")
-include(":crippy-client")
-include(":crippy-registry")
+include(":encri-contract")
+include(":encri-client")
+include(":encri-registry")
 
 // Not published: the API dumper the published modules' tests share (L16).
 include(":api-dump")

@@ -19,7 +19,7 @@ concurrency:
 
 # The scanner is a release binary checked against the SHA-256 Google publishes beside it, not
 # osv-scanner-action: that runs a Docker image by tag, which pinning the action's SHA does not pin
-# (crippy D7). Bump deliberately: new version, new hash from its osv-scanner_SHA256SUMS.
+# (encri D7). Bump deliberately: new version, new hash from its osv-scanner_SHA256SUMS.
 env:
   OSV_SCANNER_VERSION: v2.7.0
   OSV_SCANNER_SHA256: 160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b
@@ -42,13 +42,13 @@ jobs:
           echo "${OSV_SCANNER_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum -c -
           chmod +x "$RUNNER_TEMP/osv-scanner"
 
-      # The registry's is what crippy receives from it (L15), beside what an app receives from the other two.
+      # The registry's is what encri receives from it (L15), beside what an app receives from the other two.
       - name: No known advisory in any release runtime classpath
         run: |
           "$RUNNER_TEMP/osv-scanner" scan source \
-            -L crippy-client/gradle.lockfile \
-            -L crippy-contract/gradle.lockfile \
-            -L crippy-registry/gradle.lockfile
+            -L encri-client/gradle.lockfile \
+            -L encri-contract/gradle.lockfile \
+            -L encri-registry/gradle.lockfile
 
   # The build's tooling — every artifact gradle/verification-metadata.xml pins — reported to the
   # Security tab rather than failing the job. An advisory published this week is not something a pull

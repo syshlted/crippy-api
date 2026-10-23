@@ -35,7 +35,7 @@ jobs:
           - language: actions
             build-mode: none
     steps:
-      # Pinned to full commit SHAs, as every action here is (crippy D7). persist-credentials is off
+      # Pinned to full commit SHAs, as every action here is (encri D7). persist-credentials is off
       # because this job runs the build, and with it the code of every Gradle plugin the build
       # resolves; none of it needs the token written into .git/config.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0

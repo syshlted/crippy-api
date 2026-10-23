@@ -1,0 +1,72 @@
+public sealed interface com.systemhalted.encri.registry.Recognition
+public data object com.systemhalted.encri.registry.Recognition.NotListed : com.systemhalted.encri.registry.Recognition
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+public data class com.systemhalted.encri.registry.Recognition.OtherKey : com.systemhalted.encri.registry.Recognition
+  constructor(app: com.systemhalted.encri.registry.RecognizedApp)
+  public fun component1(): com.systemhalted.encri.registry.RecognizedApp
+  public fun copy(app: com.systemhalted.encri.registry.RecognizedApp = …): com.systemhalted.encri.registry.Recognition.OtherKey
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val app: com.systemhalted.encri.registry.RecognizedApp
+public data class com.systemhalted.encri.registry.Recognition.Refused : com.systemhalted.encri.registry.Recognition
+  constructor(app: com.systemhalted.encri.registry.RecognizedApp, versionCode: kotlin.Long)
+  public fun component1(): com.systemhalted.encri.registry.RecognizedApp
+  public fun component2(): kotlin.Long
+  public fun copy(app: com.systemhalted.encri.registry.RecognizedApp = …, versionCode: kotlin.Long = …): com.systemhalted.encri.registry.Recognition.Refused
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val app: com.systemhalted.encri.registry.RecognizedApp
+  public val versionCode: kotlin.Long
+public data class com.systemhalted.encri.registry.Recognition.Reviewed : com.systemhalted.encri.registry.Recognition
+  constructor(app: com.systemhalted.encri.registry.RecognizedApp, unreviewedRights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>)
+  public fun component1(): com.systemhalted.encri.registry.RecognizedApp
+  public fun component2(): kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>
+  public fun copy(app: com.systemhalted.encri.registry.RecognizedApp = …, unreviewedRights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight> = …): com.systemhalted.encri.registry.Recognition.Reviewed
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val app: com.systemhalted.encri.registry.RecognizedApp
+  public val unreviewedRights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>
+public data class com.systemhalted.encri.registry.RecognizedApp
+  constructor(packageName: kotlin.String, developer: kotlin.String, source: kotlin.String, certificates: kotlin.collections.Set<kotlin.String>, rights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>, minimumVersion: kotlin.Long, refusedVersions: kotlin.collections.Set<kotlin.Long>)
+  public fun component1(): kotlin.String
+  public fun component2(): kotlin.String
+  public fun component3(): kotlin.String
+  public fun component4(): kotlin.collections.Set<kotlin.String>
+  public fun component5(): kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>
+  public fun component6(): kotlin.Long
+  public fun component7(): kotlin.collections.Set<kotlin.Long>
+  public fun copy(packageName: kotlin.String = …, developer: kotlin.String = …, source: kotlin.String = …, certificates: kotlin.collections.Set<kotlin.String> = …, rights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight> = …, minimumVersion: kotlin.Long = …, refusedVersions: kotlin.collections.Set<kotlin.Long> = …): com.systemhalted.encri.registry.RecognizedApp
+  public fun equals(other: kotlin.Any?): kotlin.Boolean
+  public fun hashCode(): kotlin.Int
+  public fun toString(): kotlin.String
+  public val certificates: kotlin.collections.Set<kotlin.String>
+  public val developer: kotlin.String
+  public val minimumVersion: kotlin.Long
+  public val packageName: kotlin.String
+  public val refusedVersions: kotlin.collections.Set<kotlin.Long>
+  public val rights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>
+  public val source: kotlin.String
+public enum class com.systemhalted.encri.registry.RecognizedRight
+  entry READ
+  entry WRITE
+  entry CREATE
+  entry DELETE
+  entry MOVE
+  public fun valueOf(value: kotlin.String): com.systemhalted.encri.registry.RecognizedRight
+  public fun values(): kotlin.Array<com.systemhalted.encri.registry.RecognizedRight>
+  public val entries: kotlin.enums.EnumEntries<com.systemhalted.encri.registry.RecognizedRight>
+  public val word: kotlin.String
+public class com.systemhalted.encri.registry.Registry
+  public fun recognize(packageName: kotlin.String, certificateSha256: kotlin.String, versionCode: kotlin.Long, rights: kotlin.collections.Set<com.systemhalted.encri.registry.RecognizedRight>): com.systemhalted.encri.registry.Recognition
+  public val apps: kotlin.collections.List<com.systemhalted.encri.registry.RecognizedApp>
+public companion object com.systemhalted.encri.registry.Registry.Companion
+  public fun bundled(): com.systemhalted.encri.registry.Registry
+  public fun of(files: kotlin.collections.Map<kotlin.String, kotlin.String>): com.systemhalted.encri.registry.Registry
+public class com.systemhalted.encri.registry.RegistryException : kotlin.Exception /* = java.lang.Exception */
+  constructor(message: kotlin.String)
+top-level public fun main(args: kotlin.Array<kotlin.String>): kotlin.Unit
