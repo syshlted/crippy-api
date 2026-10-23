@@ -3,7 +3,7 @@
 A client-only Android library for reaching a crippy vault without the system file picker. It binds to
 crippy's companion service over AIDL; the service itself is part of crippy, not of this library.
 
-**Pre-release. Nothing is published, and neither half has run against the other on a phone yet.** See
+**Pre-release. Nothing is published.** The client has run against crippy on two phones (`AGENTS.md` L13). See
 [`PROTOCOL.md`](PROTOCOL.md) for the protocol and [`ROADMAP.md`](ROADMAP.md) for what comes next.
 
 An app declares one dependency, the client, and codes against its types alone. The contract comes
@@ -45,5 +45,8 @@ JDK 21 and the Android SDK (compileSdk 36). Then:
 lefthook install    # once per clone: signed, Conventional commits and the local gates
 ./gradlew ktlintCheck detekt allUnitTests koverVerify assemble
 ```
+
+The device tests run on a phone with `scripts/device/run-device-tests.sh <serial>`, and against the crippy installed
+there with its vault's passphrase in `CRIPPY_PASSPHRASE`; CI runs them on emulators, where crippy is not installed.
 
 Licensed under the [Apache License 2.0](LICENSE).

@@ -29,8 +29,11 @@ item 3.
 4. ~~**`PROTOCOL.md` grows with 2 and 3**~~ **Done 2026-10-23**: an author can integrate from it alone.
 5. **The registry** (crippy D114, D115): its format, a validator CI runs on every pull request, the
    snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.
-6. **Device tests** for the client against a real crippy, which needs crippy's APK on the device or
-   emulator; then `instrumented.yml`.
+6. ~~**Device tests** for the client against a real crippy, which needs crippy's APK on the device or
+   emulator; then `instrumented.yml`.~~ **Done 2026-10-23 (L13)**: a stand-in suite on three phones and the API 27
+   emulator, the suite against crippy on the S9 and the A20, and `instrumented.yml` at API 27 and 36. Left: the
+   suite against crippy on the G6, which has no crippy and a secure keyguard, and on the S24; and the workflow's
+   first run on GitHub, which waits for a push.
 7. ~~**Dependency scanning of what ships** (L7)~~ **Done 2026-10-22 (L10)**, with the build's tooling
    reported as well, against a triage file. The one advisory with a way in was fixed by Kotlin 2.4.21
    (L9).

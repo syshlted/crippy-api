@@ -5,6 +5,28 @@ than restating it.
 
 ## Unreleased
 
+### Device tests — 2026-10-23
+
+- `CrossProcessTest`: the client over a real Binder against a stand-in service in a process of its own, and one built
+  against an older contract. An unknown transaction reads as 0 over a real `BinderProxy` (L2); a process that dies
+  ends its sessions and the connection comes back; a write refused part way is told the reason, and the broken
+  pipe is `EPIPE`, not SIGPIPE (L13).
+- `AgainstCrippyTest`: the client against the crippy on the phone, from another package, pressing crippy's unlock
+  and consent screens through the accessibility tree, and only crippy's (L13).
+- `instrumented.yml`, at API 27 and 36; `scripts/device/run-device-tests.sh` for phones.
+- `androidx.test:runner` 1.7.0 and `androidx.test.ext:junit` 1.3.0: 14 components added to the verification metadata,
+  none removed, all in crippy's file (L13).
+- 10 of 10 stand-in cases on the G6, S9, A20 and the API 27 emulator; 10 of 10 against crippy on the S9 and the A20.
+
+**Bugs found.**
+
+- crippy answered a preview larger than the size asked, which the contract forbids; fixed in crippy (crippy D121).
+- `CrippyConnectionFailuresTest` failed when the looper ran first: Robolectric disconnects with no name, and the
+  client declared it non-null. The three callbacks that never read it accept null (L13).
+
+**Known issues.** The suite against crippy has not run on the G6 or the S24, and `instrumented.yml` has not run on
+GitHub.
+
 ### The first push, and commit-policy checks a force push — 2026-10-23
 
 - **Bug fixed.** A push whose `before` is not in the runner's clone made `commit-policy` check no commit and pass.

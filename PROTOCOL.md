@@ -103,7 +103,8 @@ deleted through it, and its parent reads as null.
   `STATUS_NAME_TAKEN`. **`delete`** deletes a folder with everything in it.
 - **`setTimes(id, created, modified)`** — -1 leaves a time as it is.
 - **`requestThumbnail(id, width, height, listener)`** — a ticket now, and later an encoded PNG or JPEG
-  on a descriptor, no larger than the size asked. `cancelThumbnail(requestId)` if it is no longer wanted.
+  on a descriptor, no larger than the size asked on either side, its aspect kept, and never larger than the
+  picture itself. `cancelThumbnail(requestId)` if it is no longer wanted.
 - **`handOff(ids)`** — a `content://` URI per document, granted to your app for reading, to pass to
   another app with `FLAG_GRANT_READ_URI_PERMISSION`: *open with*, or the share sheet. It reveals neither
   the document's id nor its name; the app it reaches reads the name through `OpenableColumns`. Every
