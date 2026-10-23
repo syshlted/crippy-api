@@ -5,6 +5,16 @@ than restating it.
 
 ## Unreleased
 
+### The shared-memory spike — 2026-10-23
+
+- `SharedMemorySpikeTest` and `SpikeService`: a region handed out read-only, and every way of writing through it
+  tried, on the G6, the S9, the A20 and emulators at API 27 and 36. Refused everywhere; crippy's copy unchanged (L14).
+- A 64 KiB block through the region against one through AppFuse: 3× to 13× faster as transport, about 2.5× to 3× with
+  crippy's decrypt counted (L14).
+
+**Known issues.** memfd-backed `SharedMemory`, which a vendor ROM at API 34+ may use, has not been measured: every
+target here was ashmem. The read path is not built (L14, flagged).
+
 ### Device tests — 2026-10-23
 
 - `CrossProcessTest`: the client over a real Binder against a stand-in service in a process of its own, and one built

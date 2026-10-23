@@ -14,10 +14,14 @@ transport, D114 for who may read the vault, D115 for the repositories, D117 and 
 crippy's own half — the service, the consent screen, the grant table — is crippy's build-order step 13,
 item 3.
 
-1. **The spike crippy D113 owes**, on the four phones: hand a `SharedMemory` region over Binder
+1. ~~**The spike crippy D113 owes**, on the four phones: hand a `SharedMemory` region over Binder
    read-only and confirm the client cannot make its mapping writable, read what `/proc/self/fd` calls
    it, and measure a Binder round trip. It decides whether the client gets a read path that skips
-   AppFuse. Where it lives is an open question (`AGENTS.md`).
+   AppFuse. Where it lives is an open question (`AGENTS.md`).~~ **Done 2026-10-23 (L14)** on three phones and
+   two emulators: the client cannot write through the region, and a block costs about a third of what it costs
+   through AppFuse once crippy's decrypt is counted. **Not built**, flagged: it waits for a client that reads
+   content in its own process, and for the S24, whose memfd-backed `SharedMemory`, if it has one, nothing here
+   has run.
 2. ~~**The contract's first real surface**: opening a session, the authorization request crippy's own
    Activity answers, listing in pages, and opening a document as a proxy descriptor (crippy D113,
    D114). Each method appended after `contractVersion()`, and each recorded here as it lands.~~ **Done
