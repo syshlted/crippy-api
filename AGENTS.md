@@ -27,8 +27,10 @@ the client's side of it.
 ## Status
 
 **Scaffolded 2026-10-22.** Two modules build, the gates run, and the hooks are installed. **The contract's
-first surface is written (L11)**: a service, a session, three listeners and the parcelables they carry. The client
-has no code yet. **The remote is `git@syshlt-github:syshlted/crippy-api.git` and nothing has been pushed
+first surface is written (L11)**: a service, a session, three listeners and the parcelables they carry. **The
+client is written (L12)**: connecting, trusting crippy, opening a session, every request the contract has, and the
+intents for the consent and unlock screens. crippy implements the service as its D120. Neither has run against
+the other on a phone yet. **The remote is `git@syshlt-github:syshlted/crippy-api.git` and nothing has been pushed
 to it**, so GitHub Actions has never run; until the first push, the hooks and a local `./gradlew` are
 the only checks.
 
@@ -564,6 +566,84 @@ file's dates.
 class name, which makes the service's class permanent. *Rejected:* a proxy descriptor for writes, for the three
 reasons above. *Rejected:* synchronous previews, which would let a file manager scrolling a grid of photos occupy
 the binder threads the file picker also needs.
+
+### L12 — The client: a result for every request, trust before the bind, and a write that is told why it stopped
+*2026-10-23 · accepted; **flagged for veto on five points** (below). The user chose coroutines over callbacks.
+**Amends `ROADMAP.md` item 3**, which named `hasSigningCertificate` and a bind to crippy's explicit component.*
+
+**Every request is a `suspend` function that answers a `CrippyResult`**: `Ok` with a value, or `Failed` with a
+`Failure` and a message for a developer. Nothing a request meets is thrown at the app — not a status crippy sent,
+not crippy's process going away mid-call, not a session that ended, and not a success that arrived without what it
+should carry. That last one was thrown until a test asked: every transform `require`d its field, and an
+`IllegalArgumentException` went straight to the app. The one place every request passes through now answers it as
+`Failure.FAILED`. The single exception that does reach the app is its own cancellation, which structured
+concurrency needs. Each request moves its work to `Dispatchers.IO`, so any of them may be called from the main
+thread.
+
+**Coroutines are an `api` dependency**, because `suspend` and the session's `SharedFlow` of events are in public
+signatures. kotlinx-coroutines 1.10.2 is the client's first runtime dependency besides the standard library, so it
+is in the lockfile and L10 scans it.
+
+**crippy is checked before anything is bound** (crippy D114). An app trusts a crippy whose signing-certificate
+history holds a certificate it pinned, or one signed by its own key. The second is on by default, and it is how
+crippy's file manager trusts crippy without naming a key, debug builds included (crippy D115). The history is
+read from `SigningInfo` from API 28 and from `PackageInfo.signatures` below it, and the library compares digests
+itself. `hasSigningCertificate`, which the roadmap named, checks the same history, and it would have made API 28+
+a second code path that no unit test can reach, because Robolectric does not shadow it.
+`CrippyTrust.RELEASE_CERTIFICATES` is empty until crippy has a release key, so an app signed with another key pins
+a certificate itself for now.
+
+**The bind is by action with the package set**, as L11 settled, not by component. The callback checks the package
+again, a service answering version 0 is not crippy's (L2), and one older than this client is `TooOld`. A bind that
+does not connect within ten seconds is `Unavailable`: a cold start of crippy's process is the longest an honest one
+takes.
+
+**A connection owns its sessions.** Closing it ends every session opened through it and tells crippy. The first
+draft only unbound, which left crippy holding sessions for a client that had let go of them. A session watches its
+binder, so crippy's process dying ends it, emits `VaultEvent.Ended`, and answers any request waiting on a listener
+with `Failure.DISCONNECTED`.
+
+**A write is told crippy's reason when crippy stops it.** When crippy refuses a write part way — the disk is full,
+the vault locked — it closes its end of the pipe, so the app's next write fails with a broken pipe, and crippy's
+reason reaches the write listener a moment later. A client that answered at once would report every refusal as
+`CANCELLED`. So a writer that fails with an `IOException` waits up to two seconds for crippy's answer, and reports
+it if there is one. A writer that fails any other way, or a caller that cancels, abandons the write with the
+pipe's error channel, and crippy saves nothing (L11).
+
+**Events are a `SharedFlow` that drops its oldest event past 64**, because crippy calls the listener oneway on a
+binder thread and a listener that blocked would hold that thread. A slow collector can therefore miss a
+`FolderChanged`, which is best effort anyway, and in principle a `Locked` or `Unlocked`, which a request answers
+correctly regardless.
+
+**L5's guard had been reading nothing.** `PublicSurfaceTest` looked for the client's classes in a directory, and
+AGP hands a unit test a jar. Its own sanity case, *the scan sees the client's classes at all*, failed on the first
+run, which is what it is for. It reads both now, and found three leaks once it could see. Two were not real: a
+listener object handed to crippy, which no app can name, and a synthetic accessor. The third was real:
+`CrippySession`'s `internal` constructor is public in bytecode and named `ICrippySession`, so Java could reach the
+contract through it. The constructor is private now, behind a `@JvmSynthetic` factory, which neither language can
+call from outside the module.
+
+**The library declares `<queries>` for crippy's package**, which merges into the app's manifest, because from API 30
+an app cannot see a package it does not declare.
+
+**Measured off a phone**: 83 tests against a fake service and a fake session, at API 27 and 36, over the client's
+90/85 coverage gates. Two mutations, one per fix above, each fail their test. **Not measured**: a real crippy over
+a real binder, which is roadmap item 6.
+
+**Flagged for veto:**
+
+1. **Coroutines in the public API**, so an app receives kotlinx-coroutines 1.10.2 and cannot go below it.
+2. **A crippy signed by the app's own key is trusted by default.** An app that shares crippy's key shares crippy's
+   trust already (crippy D115), and a malicious app signed with that key could not be stopped by pinning.
+3. **A certificate crippy rotated away from is still trusted**, as Android trusts it for an update.
+4. **Events are dropped oldest first** rather than holding crippy's binder thread.
+5. **A writer that fails on the pipe waits up to two seconds** for crippy's reason before answering.
+
+*Rejected:* callbacks, which the user declined. *Rejected:* `hasSigningCertificate`, for the reason above.
+*Rejected:* throwing `RemoteException`, `IllegalStateException` or a failure type of the library's own at the app,
+which would make every call site a `try` and would put the contract's exception types in the app's sight (L5).
+*Rejected:* paging as a `Flow`. `listPage` answers one page, `list` gathers them, and a `Flow` would have to decide
+what a failure halfway through a folder means.
 
 ---
 

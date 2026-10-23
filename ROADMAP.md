@@ -23,15 +23,10 @@ item 3.
    D114). Each method appended after `contractVersion()`, and each recorded here as it lands.~~ **Done
    2026-10-22 (L11)**, with writes, move, previews, handoffs, times and sizes as well. Three points are flagged
    for veto there.
-3. **The client library**: binding to crippy's explicit component; checking crippy's signing
-   certificate — `hasSigningCertificate` from API 28 and a SHA-256 of `PackageInfo.signatures` at 27,
-   against a certificate the library carries (crippy D114); refusing any method above the service's
-   `contractVersion()`, because an older service answers zero rather than an error (L2); the session's
-   `linkToDeath`; and launching the consent Activity with `startActivityForResult`. The contract's
-   types are hidden behind the client's own (L5), so each contract type an app needs gets a client
-   type beside it, and **before the first public type lands, a test that no public or protected
-   signature in the client names `com.systemhalted.crippy.api`**.
-4. **`PROTOCOL.md` grows with 2 and 3**, so an author can integrate without reading either decision log.
+3. ~~**The client library**~~ **Done 2026-10-23 (L12)**, binding by action rather than by component (L11) and
+   reading crippy's signing history itself rather than through `hasSigningCertificate`, which no unit test can
+   reach. Five points are flagged for veto there.
+4. ~~**`PROTOCOL.md` grows with 2 and 3**~~ **Done 2026-10-23**: an author can integrate from it alone.
 5. **The registry** (crippy D114, D115): its format, a validator CI runs on every pull request, the
    snapshot crippy builds in, and the fingerprints file inside a GPG-signed tag.
 6. **Device tests** for the client against a real crippy, which needs crippy's APK on the device or

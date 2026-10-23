@@ -5,6 +5,29 @@ than restating it.
 
 ## Unreleased
 
+### The client — 2026-10-23
+
+- `Crippy.connect` checks crippy's signing certificate before it binds, against the app's own key or a pinned
+  certificate, over crippy's signing history at every API level; then binds by action and asks the version (L12).
+- `CrippyConnection.openSession` and `CrippySession`: every request the contract has, as a `suspend` function
+  answering a `CrippyResult`; events as a `SharedFlow`; writes from a coroutine, abandoned if it fails or is
+  cancelled; previews cancelled in crippy when the caller is (L12).
+- `Crippy.authorizationIntent`, `authorizationResult` and `unlockIntent` for crippy's two screens (L12).
+- kotlinx-coroutines 1.10.2, an `api` dependency, locked and in the verification metadata: five components added,
+  none removed (L12).
+- 83 tests at API 27 and 36, over the 90/85 coverage gates.
+
+**Bugs fixed while building it.**
+
+- A success crippy sent without its payload threw `IllegalArgumentException` at the app; it answers
+  `Failure.FAILED` now (L12).
+- Closing a connection left its sessions open in crippy (L12).
+- A write crippy refused part way reported `CANCELLED` rather than crippy's reason (L12).
+- `PublicSurfaceTest`, L5's guard, read no classes, because AGP hands a unit test a jar; reading it found an
+  internal constructor that named the contract to Java callers (L12).
+
+**Known issues.** Not run against a real crippy on a phone (roadmap item 6).
+
 ### The contract's first surface — 2026-10-22
 
 - `ICrippyService` gains `openSession`; `ICrippySession` carries everything a file manager does: stat, list in
