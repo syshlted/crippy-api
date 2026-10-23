@@ -2,6 +2,8 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.artifacts.dsl.LockMode
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
@@ -22,6 +24,10 @@ plugins {
 }
 
 val ktlintToolVersion = libs.versions.ktlint.get()
+
+// The kotlin-stdlib a published module declares (L17): the oldest the floor's API allows, and one the
+// verified set already holds, from AGP's toolchain.
+val kotlinFloorStdlib = "2.2.10"
 val javaToolchain = 21
 
 // Aggregate unit-test task, for crippy D11's reason: CI and the pre-push hook must not call
@@ -75,6 +81,21 @@ subprojects {
         compilerOptions {
             jvmDefault.set(JvmDefaultMode.NO_COMPATIBILITY)
         }
+    }
+
+    // The Kotlin an app needs to use what is published here (L17): metadata a Kotlin 2.1 compiler can read,
+    // the standard library's 2.2 API and no newer, and kotlin-stdlib 2.2.10 declared rather than the
+    // compiler's 2.4.21. 2.2 because it is the oldest language version the compiler does not warn is going;
+    // 2.1 compiles and is deprecated. Main sources only: tests may use what they like.
+    tasks.withType<KotlinCompile>().matching { !it.name.contains("Test") }.configureEach {
+        compilerOptions {
+            languageVersion.set(KotlinVersion.KOTLIN_2_2)
+            apiVersion.set(KotlinVersion.KOTLIN_2_2)
+        }
+    }
+    // AGP's built-in Kotlin and the JVM plugin register the same extension, each when it is applied.
+    listOf("org.jetbrains.kotlin.jvm", "com.android.library").forEach { id ->
+        plugins.withId(id) { extensions.getByType<KotlinBaseExtension>().coreLibrariesVersion = kotlinFloorStdlib }
     }
 
     // Wire each module into the aggregate under whichever name its tests have.

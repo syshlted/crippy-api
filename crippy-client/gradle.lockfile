@@ -2,7 +2,7 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 # To regenerate this file, run: ./gradlew :crippy-client:dependencies --write-locks
-org.jetbrains.kotlin:kotlin-stdlib:2.4.21=releaseRuntimeClasspath
+org.jetbrains.kotlin:kotlin-stdlib:2.2.10=releaseRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2=releaseRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2=releaseRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2=releaseRuntimeClasspath
