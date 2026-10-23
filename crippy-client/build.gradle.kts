@@ -16,6 +16,9 @@ android {
 
     defaultConfig {
         minSdk = versions.minSdk.get().toInt()
+        // The device tests (L13): the client over a real Binder, against a stand-in in another process and
+        // against crippy itself.
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -49,6 +52,9 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.junit4)
     testRuntimeOnly(libs.junit.vintage.engine)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }
 
 tasks.withType<Test>().configureEach {

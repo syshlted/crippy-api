@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        The device tests' own components (L13). Each service runs in a process of its own, so a session
+        crosses a real Binder: a BinderProxy, a parcel two processes read and write, a pipe, a descriptor
+        from another process, and a process that can be killed. None is exported: only this package binds
+        them.
+    -->
+    <application>
+
+        <!-- crippy's service, as far as the wire goes, holding a few documents in memory. -->
+        <service
+            android:name="com.systemhalted.crippy.client.device.StandInCrippy"
+            android:exported="false"
+            android:process=":standin" />
+
+        <!-- A service built against an older contract: it knows transaction 1 and nothing after it (L2). -->
+        <service
+            android:name="com.systemhalted.crippy.client.device.OlderCrippy"
+            android:exported="false"
+            android:process=":older" />
+
+        <!--
+            Starts one of crippy's screens with startActivityForResult, which crippy's consent screen
+            requires so it can name the app from the system rather than from the request (crippy D114).
+        -->
+        <activity
+            android:name="com.systemhalted.crippy.client.device.ResultHost"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+    </application>
+
+</manifest>

@@ -23,6 +23,8 @@ import kotlinx.coroutines.withTimeoutOrNull
  */
 internal class ServiceBinding internal constructor(
     private val context: Context,
+    /** The package a service must be in to be answered to: crippy's, except in a device test (L13). */
+    private val expectedPackage: String = Contract.PACKAGE,
 ) : ServiceConnection {
     private val first = CompletableDeferred<IBinder?>()
 
@@ -38,7 +40,7 @@ internal class ServiceBinding internal constructor(
         binder: IBinder,
     ) {
         // The package was set on the intent, so this is crippy's; checked again because it costs nothing.
-        val ours = name.packageName == Contract.PACKAGE
+        val ours = name.packageName == expectedPackage
         service = if (ours) ICrippyService.Stub.asInterface(binder) else null
         first.complete(if (ours) binder else null)
     }
@@ -76,13 +78,25 @@ internal class ServiceBinding internal constructor(
         /** How long crippy has to answer a bind before the connection gives up: a cold start of its process. */
         const val BIND_TIMEOUT_MILLIS = 10_000L
 
+        suspend fun connect(
+            context: Context,
+            io: CoroutineDispatcher,
+        ): ConnectResult =
+            connect(context, io, Intent(Contract.ACTION_BIND).setPackage(Contract.PACKAGE), Contract.PACKAGE)
+
+        /**
+         * [connect] to the service [intent] names, in [expectedPackage]. Only a device test binds anything
+         * but crippy, to a stand-in in a process of its own (L13): everything after the bind is the path an
+         * app takes.
+         */
         @Suppress("ReturnCount", "SwallowedException") // One return per way a connection does not happen.
         suspend fun connect(
             context: Context,
             io: CoroutineDispatcher,
+            intent: Intent,
+            expectedPackage: String,
         ): ConnectResult {
-            val binding = ServiceBinding(context)
-            val intent = Intent(Contract.ACTION_BIND).setPackage(Contract.PACKAGE)
+            val binding = ServiceBinding(context, expectedPackage)
             val bound =
                 try {
                     context.bindService(intent, binding, Context.BIND_AUTO_CREATE)
