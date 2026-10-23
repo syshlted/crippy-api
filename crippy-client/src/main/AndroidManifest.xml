@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Merged into every app that uses the client (L12). From API 30 an app sees only the packages it
+        declares, and the client has to see crippy to check what crippy is signed with before it binds
+        (crippy D114) and to bind at all. One package, named, rather than an intent query: the client
+        talks to crippy and to nothing that merely answers crippy's action.
+    -->
+    <queries>
+        <package android:name="com.systemhalted.crippy" />
+    </queries>
+
+</manifest>
