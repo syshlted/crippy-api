@@ -71,6 +71,23 @@ normative; where they and this page disagree, the `.aidl` files are right.
 - **Unlocking:** start action `com.systemhalted.encri.action.UNLOCK` for a result, the package set to
   encri's. It answers `RESULT_OK` once the vault is unlocked, at once if it already is.
 
+### Backups are encri's own screens
+
+A backup file, a restore from one and the scheduled backup are not requests a session makes. Their
+passphrases open the whole vault, so they are only ever typed on encri's own screen. A client offers an
+entry that opens that screen:
+
+| Action | The screen |
+|---|---|
+| `com.systemhalted.encri.api.action.BACKUPS` | automatic backups: set one up, run, check or restore one, or stop them |
+| `com.systemhalted.encri.api.action.SAVE_BACKUP_FILE` | save a backup file of the whole vault where the user picks |
+| `com.systemhalted.encri.api.action.RESTORE` | restore a backup file into the vault, beside what is there |
+
+Start each with `startActivity` and the package set to encri's. No session or grant is needed. encri
+reads nothing from the Intent and answers no result: where a file goes or comes from is picked in the
+system picker, and what happened is encri's to say. An encri that predates these actions does not answer
+them, so resolve the Intent before offering the entry.
+
 ### Rights
 
 | Bit | Name | Allows |

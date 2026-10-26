@@ -23,6 +23,9 @@ import kotlinx.coroutines.Dispatchers
  *    [authorizationIntent] with `startActivityForResult`, and encri asks the user on its own screen.
  * 3. A vault that is locked answers [SessionOutcome.Locked]: start [unlockIntent] the same way.
  *
+ * Backups are not requests: [backupsIntent], [saveBackupFileIntent] and [restoreIntent] open encri's own
+ * screens for them, and need no connection at all.
+ *
  * Nothing here is safe on the main thread except the intents: [connect] and everything after it is
  * `suspend` and moves its own work off the caller's thread.
  */
@@ -87,6 +90,29 @@ public object Encri {
      * screen. It answers `RESULT_OK` once the vault is unlocked.
      */
     public fun unlockIntent(): Intent = Intent(Contract.ACTION_UNLOCK).setPackage(PACKAGE)
+
+    /**
+     * encri's automatic backups screen, for an app's *Back up* entry (encri D123, L20): the user sets one
+     * up, runs, checks or restores one, or stops them, there.
+     *
+     * Backups stay in encri, so the passphrase that opens one is typed on encri's screen and never in this
+     * app. Start it with `startActivity`; it needs no session, reads nothing from the Intent and answers no
+     * result. An encri older than this library may not have the screen: resolve the Intent with
+     * `PackageManager.resolveActivity` before offering the entry.
+     */
+    public fun backupsIntent(): Intent = Intent(Contract.ACTION_BACKUPS).setPackage(PACKAGE)
+
+    /**
+     * encri's screen that saves a backup file of the whole vault, for a *Save a backup file* entry. The user
+     * picks where it goes in the system picker and types its passphrase on encri's screen. As [backupsIntent].
+     */
+    public fun saveBackupFileIntent(): Intent = Intent(Contract.ACTION_SAVE_BACKUP_FILE).setPackage(PACKAGE)
+
+    /**
+     * encri's screen that restores a backup file into the vault, beside what is there, for a *Restore*
+     * entry. The user picks the file in the system picker. As [backupsIntent].
+     */
+    public fun restoreIntent(): Intent = Intent(Contract.ACTION_RESTORE).setPackage(PACKAGE)
 }
 
 /** Whether encri can be connected to. */

@@ -78,6 +78,9 @@ class WireNamesTest {
         assertEquals("com.systemhalted.encri.api.action.AUTHORIZE", IEncriService.ACTION_AUTHORIZE)
         assertEquals("com.systemhalted.encri.api.extra.RIGHTS", IEncriService.EXTRA_RIGHTS)
         assertEquals("com.systemhalted.encri.action.UNLOCK", IEncriService.ACTION_UNLOCK)
+        assertEquals("com.systemhalted.encri.api.action.BACKUPS", IEncriService.ACTION_BACKUPS)
+        assertEquals("com.systemhalted.encri.api.action.SAVE_BACKUP_FILE", IEncriService.ACTION_SAVE_BACKUP_FILE)
+        assertEquals("com.systemhalted.encri.api.action.RESTORE", IEncriService.ACTION_RESTORE)
         assertEquals("vnd.android.document/directory", IEncriService.MIME_TYPE_FOLDER)
     }
 

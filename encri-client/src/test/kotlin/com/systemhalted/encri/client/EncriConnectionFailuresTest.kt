@@ -15,6 +15,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,6 +104,27 @@ class EncriConnectionFailuresTest {
         val unlock: Intent = Encri.unlockIntent()
         assertEquals(IEncriService.ACTION_UNLOCK, unlock.action)
         assertEquals(IEncriService.PACKAGE, unlock.`package`)
+    }
+
+    /**
+     * Each backup screen is asked of encri's package by the contract's action, and carries nothing: encri
+     * reads nothing from the Intent (encri D123), so a client has nothing to put in one.
+     */
+    @Test
+    fun `the backup screens are asked of encri's own package, carrying nothing`() {
+        val asked =
+            mapOf(
+                IEncriService.ACTION_BACKUPS to Encri.backupsIntent(),
+                IEncriService.ACTION_SAVE_BACKUP_FILE to Encri.saveBackupFileIntent(),
+                IEncriService.ACTION_RESTORE to Encri.restoreIntent(),
+            )
+        asked.forEach { (action, intent) ->
+            assertEquals(action, intent.action)
+            assertEquals(IEncriService.PACKAGE, intent.`package`)
+            assertNull(action, intent.data)
+            assertNull(action, intent.extras)
+            assertNull(action, intent.component)
+        }
     }
 
     /** Signs this test's own package with [signature], so `checkSignatures` can compare the two. */

@@ -50,6 +50,24 @@ interface IEncriService {
      */
     const String ACTION_UNLOCK = "com.systemhalted.encri.action.UNLOCK";
 
+    // ---- encri's backup screens (encri D123, L20) --------------------------------------------
+    //
+    // Backup files, restores and the scheduled backup stay in encri, and a client opens encri's own
+    // screens for them. Start each with startActivity and the package set to PACKAGE. They need no
+    // session and no grant; they read nothing from the Intent and answer no result. The user does the
+    // work on encri's screen, which asks for every passphrase itself and says what the vault's state
+    // allows. An encri that predates them does not answer them, so resolve the Intent before offering
+    // the entry that starts one.
+
+    /** The automatic backups screen: set one up, run, check or restore one, or stop them (encri D95). */
+    const String ACTION_BACKUPS = "com.systemhalted.encri.api.action.BACKUPS";
+
+    /** The screen that saves a backup file of the whole vault where the user picks (encri D78). */
+    const String ACTION_SAVE_BACKUP_FILE = "com.systemhalted.encri.api.action.SAVE_BACKUP_FILE";
+
+    /** The screen that restores a backup file into the vault, beside what is there (encri D84). */
+    const String ACTION_RESTORE = "com.systemhalted.encri.api.action.RESTORE";
+
     // ---- Rights a grant carries --------------------------------------------------------------
 
     /** List, look up, read, preview and hand off documents. Every grant carries it. */
