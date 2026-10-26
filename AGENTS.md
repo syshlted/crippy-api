@@ -41,6 +41,9 @@ no code-scanning alert.
 **Renamed with the suite on 2026-10-23 (L19, encri D124).** Every package, artifact, wire name and repository
 name says encri; the earlier name is only in the history before that.
 
+**The contract names encri's backup screens as of 2026-10-26 (L20, encri D123)**, so a client can open them; the
+work and its passphrases stay on encri's screens.
+
 ## Relationship to encri
 
 - **Decisions here are numbered L1, L2, …, and encri's are cited as *encri D113*.** Two logs both
@@ -525,8 +528,8 @@ read 0 for *not answered*, so even the operations with nothing to return give ba
 length before its fields: a reader skips what a newer writer appended and finds what an older writer did not send
 at its default. `ParcelableEvolutionTest` runs both halves.
 
-**The vocabulary is constants in `IEncriService`**: the package, the bind action, the consent and unlock actions,
-the rights, the states, the statuses, one flag, and the folder MIME type. A client binds by action with the package
+**The vocabulary is constants in `IEncriService`**: the package, the bind action, the consent and unlock actions
+(and, since L20, the actions of encri's three backup screens), the rights, the states, the statuses, one flag, and the folder MIME type. A client binds by action with the package
 set, rather than by a class name, so encri can move the service without breaking a client. `ACTION_UNLOCK` is
 the action encri's unlock screen has answered since encri D33.
 
@@ -963,6 +966,37 @@ would fail both, and the append-only check (L18) as well.
 **Verified.** 120 unit tests, the registry's validator, every lint and coverage gate, and both APKs; the API dumps
 were regenerated and then checked. encri builds against this repository as a composite build, with its own suite
 green.
+
+### L20 — The contract names encri's three backup screens, and a client opens them with no session
+*2026-10-26 · accepted. encri D123's half here: backup files, restores and the scheduled backup stay in encri, and
+the contract names the screens a client opens for them. encri's half is its D133.*
+
+**Three actions beside `ACTION_UNLOCK`**: `ACTION_BACKUPS`, `ACTION_SAVE_BACKUP_FILE` and `ACTION_RESTORE`, under
+`com.systemhalted.encri.api.action.`, where L19 put the contract's own actions. `UNLOCK` sits under
+`com.systemhalted.encri.action.` because it predates the contract (encri D33) and the contract adopted it. encri's
+internal actions live under that prefix too, such as `ArchiveService`'s `IMPORT_ARCHIVE`, so putting these under the
+API's prefix keeps the two sets apart.
+
+**Constants, so the version stays 1.** A version adds methods (L11), and these are not methods: L18's check holds
+every constant to its value and counts only what an interface appends. Nothing has been released, so contract v1
+still grows before its first tag, as it changed under L19. An encri that predates the actions does not answer them.
+That is only development builds, and a client finds out by resolving the Intent before it offers an entry. That
+works against any installed encri, and is cheaper than a version for three entries.
+
+**The client gives an Intent for each**: `Encri.backupsIntent()`, `saveBackupFileIntent()` and `restoreIntent()`,
+beside `unlockIntent()`. Each carries the action and the package and nothing else, because encri reads nothing from
+it (encri D123). A field the client could fill would be one encri ignores, or one an app could aim the screen with.
+They are started with `startActivity`, not for a result: the work runs in encri's service after the screen has gone
+(encri D78), so a result when the screen closes would say nothing true about it. They need no connection and no
+session, which matches what a user can do from encri's launcher icon.
+
+*Rejected:* session methods that start the work, which encri D123 rejects because the passphrase would then be typed
+in the companion's process. *Rejected:* asking for a session or a grant before a screen opens. That is encri D123's
+flagged point, and encri's to change. *Rejected:* raising `VERSION` to say the screens exist.
+
+**Verified.** `WireNamesTest` pins the three strings. A client test pins each Intent's action, its package and that it
+carries nothing else; it failed when `restoreIntent` was pointed at the backups action. The client's API dump gained
+three lines.
 
 ---
 

@@ -5,6 +5,17 @@ than restating it.
 
 ## Unreleased
 
+### encri's backup screens, by action — 2026-10-26
+
+- **The contract names three of encri's screens**: `ACTION_BACKUPS`, `ACTION_SAVE_BACKUP_FILE` and `ACTION_RESTORE`,
+  beside `ACTION_UNLOCK`. They are constants, so the contract is still version 1 (L20, encri D123).
+- **The client gives an Intent for each**: `Encri.backupsIntent()`, `saveBackupFileIntent()` and `restoreIntent()`.
+  Each needs no session, carries nothing and answers no result (L20).
+- `PROTOCOL.md` says what each screen does and how to start it.
+
+**Known issues.** An encri that predates the actions does not answer them, so a client has to resolve the Intent
+before offering an entry (L20).
+
 ### The rename to encri — 2026-10-23
 
 **Completed (L19).** Every package, artifact, contract name and repository name spells encri, with the suite (encri
