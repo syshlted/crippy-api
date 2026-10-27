@@ -5,6 +5,15 @@ than restating it.
 
 ## Unreleased
 
+### `ACTION_BACKUPS` removed before the first release — 2026-10-27
+
+- **The contract no longer names encri's automatic backups screen**, and the client has no `Encri.backupsIntent()`
+  (L21). encri took the scheduled backup out for two backup apps of their own (encri D137), so the action would have
+  opened nothing. `ACTION_SAVE_BACKUP_FILE`, `ACTION_RESTORE` and their Intents are unchanged.
+- `PROTOCOL.md` and the README say so.
+
+**Known issues.** How a backup app reaches encri is undesigned, so the contract has no action for it yet (encri D137).
+
 ### encri's backup screens, by action — 2026-10-26
 
 - **The contract names three of encri's screens**: `ACTION_BACKUPS`, `ACTION_SAVE_BACKUP_FILE` and `ACTION_RESTORE`,
