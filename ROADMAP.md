@@ -48,6 +48,12 @@ item 3.
 
 ## Before the first release
 
+- **The first release is encri's and Encri Files' too** (encri D136, 2026-10-27), with internal testing on Google
+  Play that week; the contract freezes then.
+- **`ACTION_BACKUPS` and `Encri.backupsIntent()`** (L20) name encri's backup screen, which encri D137 moves out of
+  encri into two backup apps, `com.systemhalted.encri.backups_free` and `…backups_sub`. Removed, or pointed at
+  them, before the freeze; `ACTION_SAVE_BACKUP_FILE` and `ACTION_RESTORE` stay encri's. A backup app's own surface
+  (asking encri to prepare a generation, read a folder's generations and plan a prune) is undesigned (encri D137).
 - ~~**The append-only gate** (L2): every interface's methods in the last released tag must be a prefix of
   its methods now, checked in CI. Until a release exists there is nothing to compare against.~~ **Built (L18)**,
   and live from the first `v*` tag.
