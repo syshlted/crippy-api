@@ -114,7 +114,6 @@ class EncriConnectionFailuresTest {
     fun `the backup screens are asked of encri's own package, carrying nothing`() {
         val asked =
             mapOf(
-                IEncriService.ACTION_BACKUPS to Encri.backupsIntent(),
                 IEncriService.ACTION_SAVE_BACKUP_FILE to Encri.saveBackupFileIntent(),
                 IEncriService.ACTION_RESTORE to Encri.restoreIntent(),
             )

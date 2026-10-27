@@ -56,7 +56,6 @@ public object com.systemhalted.encri.client.Encri
   public fun authorizationIntent(rights: kotlin.collections.Set<com.systemhalted.encri.client.Right>): android.content.Intent
   public fun authorizationResult(resultCode: kotlin.Int, data: android.content.Intent?): kotlin.collections.Set<com.systemhalted.encri.client.Right>?
   public fun availability(context: android.content.Context, trust: com.systemhalted.encri.client.EncriTrust = …): com.systemhalted.encri.client.Availability
-  public fun backupsIntent(): android.content.Intent
   public fun restoreIntent(): android.content.Intent
   public fun saveBackupFileIntent(): android.content.Intent
   public fun unlockIntent(): android.content.Intent

@@ -34,8 +34,8 @@ when (val connected = Encri.connect(context)) {
 }
 ```
 
-Backups stay in encri: `Encri.backupsIntent()`, `saveBackupFileIntent()` and `restoreIntent()` open encri's own
-screens for them with `startActivity`, and need no session (`AGENTS.md` L20).
+Backup files stay in encri: `Encri.saveBackupFileIntent()` and `restoreIntent()` open encri's own screens for them
+with `startActivity`, and need no session (`AGENTS.md` L20, L21).
 
 An app needs Kotlin 2.1 or newer (`AGENTS.md` L17), and R8 needs no rules for the library (L18).
 

@@ -15,7 +15,6 @@ internal object Contract {
     const val ACTION_BIND: String = IEncriService.ACTION_BIND
     const val ACTION_AUTHORIZE: String = IEncriService.ACTION_AUTHORIZE
     const val ACTION_UNLOCK: String = IEncriService.ACTION_UNLOCK
-    const val ACTION_BACKUPS: String = IEncriService.ACTION_BACKUPS
     const val ACTION_SAVE_BACKUP_FILE: String = IEncriService.ACTION_SAVE_BACKUP_FILE
     const val ACTION_RESTORE: String = IEncriService.ACTION_RESTORE
     const val EXTRA_RIGHTS: String = IEncriService.EXTRA_RIGHTS
