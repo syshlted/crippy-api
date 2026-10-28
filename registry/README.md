@@ -9,7 +9,7 @@ An app that is not listed can be let in too, without the label — a build someb
 signed with their own key, for one. The one thing an entry takes away is a version it refuses: encri does
 not let that build in at all.
 
-**It is empty**, until an app has a release key to list: encri's own file manager is the first expected.
+**It lists one app**, encri's own file manager, since 2026-10-28 (`AGENTS.md` L22).
 
 ## Adding an app
 

@@ -5,6 +5,16 @@ than restating it.
 
 ## Unreleased
 
+### encri's release key — 2026-10-28
+
+- **Encri Files is in the registry**, under encri's app signing certificate, so encri's consent screen names who wrote
+  it and where its source is (L22).
+- **The client trusts a released encri by default**: `EncriTrust.RELEASE_CERTIFICATES` holds that certificate (L22).
+- **`FINGERPRINTS.md`** lists the signing certificate both apps share and the code transparency key, with how to check
+  each.
+
+**Known issues.** Encri Files' Play upload key is encri's until Google resets it to its own (L22).
+
 ### `ACTION_BACKUPS` removed before the first release — 2026-10-27
 
 - **The contract no longer names encri's automatic backups screen**, and the client has no `Encri.backupsIntent()`

@@ -5,6 +5,7 @@ encri's companion service over AIDL; the service itself is part of encri, not of
 
 **Pre-release. Nothing is published.** The client has run against encri on two phones (`AGENTS.md` L13). See
 [`PROTOCOL.md`](PROTOCOL.md) for the protocol and [`ROADMAP.md`](ROADMAP.md) for what comes next.
+[`FINGERPRINTS.md`](FINGERPRINTS.md) lists the keys encri and Encri Files are signed with.
 
 An app declares one dependency, the client, and codes against its types alone. The contract comes
 with it at runtime and is never on the app's compile classpath.

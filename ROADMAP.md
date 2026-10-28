@@ -33,8 +33,10 @@ item 3.
 4. ~~**`PROTOCOL.md` grows with 2 and 3**~~ **Done 2026-10-23**: an author can integrate from it alone.
 5. ~~**The registry** (encri D114, D115): its format, a validator CI runs on every pull request, the
    snapshot encri builds in, and the fingerprints file inside a GPG-signed tag.~~ **Built 2026-10-23 (L15)**, and
-   encri reads it (encri D122). Empty until an app has a release key. **The fingerprints file is not**: it lists
-   first-party keys that do not exist yet, inside a tag that waits for the first release.
+   encri reads it (encri D122). ~~Empty until an app has a release key. **The fingerprints file is not**: it lists
+   first-party keys that do not exist yet, inside a tag that waits for the first release.~~ **Encri Files listed,
+   `RELEASE_CERTIFICATES` set and `FINGERPRINTS.md` written, 2026-10-28 (L22)**, once the keys existed; the file is
+   released inside the first `v*` tag.
 6. ~~**Device tests** for the client against a real encri, which needs encri's APK on the device or
    emulator; then `instrumented.yml`.~~ **Done 2026-10-23 (L13)**: a stand-in suite on three phones and the API 27
    emulator, the suite against encri on the S9 and the A20, and `instrumented.yml` at API 27 and 36. Left: the

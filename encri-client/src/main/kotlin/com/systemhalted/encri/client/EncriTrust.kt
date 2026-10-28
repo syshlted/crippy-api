@@ -18,10 +18,11 @@ public class EncriTrust private constructor(
 ) {
     public companion object {
         /**
-         * The certificates encri's releases are signed with. **Empty until encri has a release key**
-         * (encri D115): no build signed by anyone is trusted on these grounds alone until then.
+         * The certificates encri's releases are signed with: its app signing key, the one Google Play signs
+         * with and the GitHub release is signed with (encri D115, L22). `FINGERPRINTS.md` lists it.
          */
-        public val RELEASE_CERTIFICATES: Set<String> = emptySet()
+        public val RELEASE_CERTIFICATES: Set<String> =
+            setOf("ba30d5ee379521aaa4c4c738128ada6a294fac411fa479afb07d78b5ee4ccc49")
 
         /** encri's release certificates, and an encri signed by the same key as this app. */
         public val DEFAULT: EncriTrust = EncriTrust(RELEASE_CERTIFICATES, sameSigner = true)
